@@ -501,12 +501,49 @@
             inset: 0;
             z-index: 500; /* Alto para ficar acima de tudo */
             transition: filter 0.3s ease, opacity 0.5s ease;
+            pointer-events: none; /* Container não bloqueia touch */
         }
 
         #canvas-container canvas {
-            pointer-events: auto !important; /* Forçar canvas a receber eventos */
+            pointer-events: auto; /* Canvas recebe eventos de mouse no desktop */
             cursor: grab;
-            touch-action: pan-y; /* Permitir scroll vertical no mobile */
+        }
+
+        /* No mobile, desabilitar pointer-events do canvas para permitir scroll */
+        @media (max-width: 768px) {
+            #canvas-container canvas {
+                pointer-events: none; /* Desabilitar no mobile - scroll passa através */
+            }
+        }
+
+        /* Área de toque para girar modelo no mobile */
+        .mobile-model-touch-area {
+            display: none; /* Escondido no desktop */
+        }
+
+        @media (max-width: 768px) {
+            .mobile-model-touch-area {
+                display: block;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 60vw;
+                height: 40vh;
+                z-index: 550;
+                cursor: grab;
+                border-radius: 20px;
+                /* Borda sutil para indicar área de toque */
+                border: 2px dashed rgba(0, 212, 255, 0.2);
+                background: transparent;
+                touch-action: none; /* Prevenir scroll nessa área */
+            }
+
+            .mobile-model-touch-area:active {
+                cursor: grabbing;
+                border-color: rgba(0, 212, 255, 0.5);
+                background: rgba(0, 212, 255, 0.05);
+            }
         }
 
         /* Transição entre modelos com blur */
@@ -1617,13 +1654,16 @@
         </div>
     </div>
 
+    <!-- Área de toque para girar modelo no mobile -->
+    <div class="mobile-model-touch-area" id="mobileModelTouchArea"></div>
+
     <!-- Center Info -->
     <div class="center-info" id="centerInfo">
         <div class="title">Serviço_<span id="curiosityNum">01</span></div>
         <div class="main" id="curiosityTitle">Lentes de Contato Dental</div>
         <div class="sub" id="curiositySub"></div>
         <div class="instruction desktop-only">ARRASTE PARA MOVER • RODE PARA GIRAR</div>
-        <div class="instruction mobile-only">USE 2 DEDOS PARA GIRAR O MODELO</div>
+        <div class="instruction mobile-only">TOQUE NO MODELO PARA GIRAR</div>
     </div>
 
     <!-- Inspection Hint -->
@@ -2080,38 +2120,44 @@
         // ============================================
 
         function setupLights() {
-            // Ambient
-            const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+            // Detectar se é mobile para reduzir luzes
+            const isMobile = window.innerWidth <= 768;
+
+            // Ambient - reduzido para não estourar o branco
+            const ambient = new THREE.AmbientLight(0xffffff, isMobile ? 0.3 : 0.4);
             scene.add(ambient);
 
-            // Main light - branco suave
-            const mainLight = new THREE.DirectionalLight(0xffffff, 1.2);
+            // Main light - branco suave (reduzido)
+            const mainLight = new THREE.DirectionalLight(0xffffff, isMobile ? 0.6 : 0.8);
             mainLight.position.set(10, 20, 15);
-            mainLight.castShadow = true;
+            mainLight.castShadow = false; // Desabilitado para performance
             scene.add(mainLight);
 
-            // Fill light
-            const fillLight = new THREE.DirectionalLight(0xffffff, 0.4);
+            // Fill light (reduzido)
+            const fillLight = new THREE.DirectionalLight(0xffffff, isMobile ? 0.2 : 0.3);
             fillLight.position.set(-10, 5, -10);
             scene.add(fillLight);
 
-            // Rim light - neon ciano
-            const rimLight = new THREE.DirectionalLight(0x00d4ff, 0.8);
+            // Rim light - neon ciano (reduzido)
+            const rimLight = new THREE.DirectionalLight(0x00d4ff, isMobile ? 0.4 : 0.6);
             rimLight.position.set(0, -10, -20);
             scene.add(rimLight);
 
-            // Light adicional - roxo neon
-            const purpleLight = new THREE.DirectionalLight(0xa855f7, 0.5);
-            purpleLight.position.set(-15, 10, 10);
-            scene.add(purpleLight);
+            // Light adicional - roxo neon (reduzido, desabilitado no mobile)
+            if (!isMobile) {
+                const purpleLight = new THREE.DirectionalLight(0xa855f7, 0.3);
+                purpleLight.position.set(-15, 10, 10);
+                scene.add(purpleLight);
+            }
 
-            // Point lights para glow nos dentes
-            const pointLight1 = new THREE.PointLight(0x00d4ff, 1.5, 20);
-            pointLight1.position.set(0, 0, 0);
-            scene.add(pointLight1);
+            // Point lights para glow - desabilitados no mobile para performance
+            if (!isMobile) {
+                const pointLight1 = new THREE.PointLight(0x00d4ff, 0.8, 20);
+                pointLight1.position.set(0, 0, 0);
+                scene.add(pointLight1);
 
-            const pointLight2 = new THREE.PointLight(0xa855f7, 1.0, 15);
-            pointLight2.position.set(5, 5, 5);
+                const pointLight2 = new THREE.PointLight(0xa855f7, 0.5, 15);
+                pointLight2.position.set(5, 5, 5);
             scene.add(pointLight2);
         }
 
@@ -2330,24 +2376,28 @@
                         object.traverse((child) => {
                             if (child.isMesh) {
                                 // Cores diferentes para cada modelo
-                                let color = 0xf8f8f5; // Branco padrão (dentes)
+                                // Base.obj: cor mais suave para não ficar branco demais
+                                let color = 0xd8d8d5; // Cinza claro suave (dentes)
                                 let emissiveColor = 0x00d4ff;
+                                let emissiveIntensity = 0.05;
 
                                 if (isEscova) {
                                     color = 0x00b4d8; // Azul para escova
                                     emissiveColor = 0x00d4ff;
+                                    emissiveIntensity = 0.08;
                                 } else if (isFioDental) {
                                     color = 0x90e0ef; // Azul claro para fio dental
                                     emissiveColor = 0x00d4ff;
+                                    emissiveIntensity = 0.08;
                                 }
 
                                 // Material otimizado para performance
                                 child.material = new THREE.MeshStandardMaterial({
                                     color: color,
-                                    metalness: 0.2,
-                                    roughness: 0.4,
+                                    metalness: 0.1,
+                                    roughness: 0.5,
                                     emissive: emissiveColor,
-                                    emissiveIntensity: 0.1
+                                    emissiveIntensity: emissiveIntensity
                                 });
                                 child.castShadow = false;
                                 child.receiveShadow = false;
@@ -3691,11 +3741,17 @@
             // ============================================
             // ESCONDER CANVAS E PAINÉIS após as seções dos modelos 3D
             // ============================================
+            const mobileTouchArea = document.getElementById('mobileModelTouchArea');
+
             if (scrollY > endOfModelsScroll - windowHeight * 0.3) {
                 // Esconder canvas e painéis quando chegar nas seções finais
                 if (canvasContainer) {
                     canvasContainer.style.opacity = '0';
                     canvasContainer.style.pointerEvents = 'none';
+                }
+                // Esconder área de toque mobile
+                if (mobileTouchArea) {
+                    mobileTouchArea.style.display = 'none';
                 }
                 if (centerInfo) centerInfo.style.opacity = '0';
                 if (detailPanel) detailPanel.style.opacity = '0';
@@ -3704,6 +3760,10 @@
                 if (canvasContainer) {
                     canvasContainer.style.opacity = '1';
                     canvasContainer.style.pointerEvents = 'auto';
+                }
+                // Mostrar área de toque mobile
+                if (mobileTouchArea && window.innerWidth <= 768) {
+                    mobileTouchArea.style.display = 'block';
                 }
                 // A opacidade do centerInfo e detailPanel já é controlada pela transição acima
             }
@@ -4137,6 +4197,59 @@
                     }
                 }
             });
+
+            // ============================================
+            // ÁREA DE TOQUE MOBILE - para girar o modelo
+            // ============================================
+            const mobileTouchArea = document.getElementById('mobileModelTouchArea');
+            if (mobileTouchArea) {
+                let mobileTouchStart = { x: 0, y: 0 };
+                let isMobileTouching = false;
+
+                mobileTouchArea.addEventListener('touchstart', (e) => {
+                    if (!currentVisibleModel) return;
+                    e.preventDefault();
+
+                    const touch = e.touches[0];
+                    mobileTouchStart = { x: touch.clientX, y: touch.clientY };
+                    isMobileTouching = true;
+                    isModelDragging = true;
+                    autoRotateModel = false;
+                }, { passive: false });
+
+                mobileTouchArea.addEventListener('touchmove', (e) => {
+                    if (!isMobileTouching || !currentVisibleModel) return;
+                    e.preventDefault();
+
+                    const touch = e.touches[0];
+                    const deltaX = touch.clientX - mobileTouchStart.x;
+                    const deltaY = touch.clientY - mobileTouchStart.y;
+
+                    const rotationSpeed = 0.008;
+                    currentVisibleModel.rotation.y += deltaX * rotationSpeed;
+                    currentVisibleModel.rotation.x += deltaY * rotationSpeed;
+                    currentVisibleModel.rotation.x = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, currentVisibleModel.rotation.x));
+
+                    modelRotationVelocity = {
+                        x: deltaY * rotationSpeed * 0.3,
+                        y: deltaX * rotationSpeed * 0.3
+                    };
+
+                    mobileTouchStart = { x: touch.clientX, y: touch.clientY };
+                    lastDragTime = Date.now();
+                }, { passive: false });
+
+                mobileTouchArea.addEventListener('touchend', () => {
+                    isMobileTouching = false;
+                    isModelDragging = false;
+
+                    setTimeout(() => {
+                        if (!isModelDragging && !isMobileTouching) {
+                            autoRotateModel = true;
+                        }
+                    }, 2000);
+                });
+            }
 
             // Hover effect - mudar cursor
             canvas.addEventListener('mousemove', (e) => {
