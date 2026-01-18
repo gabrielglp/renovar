@@ -2059,13 +2059,15 @@
             camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 100);
             camera.position.set(0, 0, 18);
 
-            // Renderer
+            // Renderer - otimizado para mobile
+            const isMobile = window.innerWidth <= 768;
             renderer = new THREE.WebGLRenderer({
-                antialias: true,
-                alpha: true
+                antialias: !isMobile, // Desabilitar antialiasing no mobile
+                alpha: true,
+                powerPreference: isMobile ? 'low-power' : 'high-performance'
             });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // Limitado para melhor performance
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1 : 1.5)); // Limitar mais no mobile
             renderer.shadowMap.enabled = false; // Desabilitado para melhor performance
             renderer.outputEncoding = THREE.sRGBEncoding;
             container.appendChild(renderer.domElement);
@@ -2158,7 +2160,8 @@
 
                 const pointLight2 = new THREE.PointLight(0xa855f7, 0.5, 15);
                 pointLight2.position.set(5, 5, 5);
-            scene.add(pointLight2);
+                scene.add(pointLight2);
+            }
         }
 
         // ============================================
@@ -3426,7 +3429,9 @@
         // ============================================
 
         function createParticles() {
-            const count = 400; // Reduzido para melhor performance
+            // Reduzir drasticamente partículas no mobile
+            const isMobile = window.innerWidth <= 768;
+            const count = isMobile ? 80 : 250; // Muito menos no mobile
             const positions = new Float32Array(count * 3);
             const sizes = new Float32Array(count);
             const colors = new Float32Array(count * 3);
@@ -3811,10 +3816,18 @@
                 return;
             }
 
+            // Desabilitar partículas CSS no mobile para melhor performance
+            const isMobile = window.innerWidth <= 768;
+            if (isMobile) {
+                console.log('Partículas CSS desabilitadas no mobile para performance');
+                particlesInitialized = true;
+                return;
+            }
+
             console.log('Inicializando partículas flutuantes...');
             particlesInitialized = true;
 
-            const particleCount = 50;
+            const particleCount = 30; // Reduzido
             const colors = ['cyan', 'purple', 'white'];
 
             for (let i = 0; i < particleCount; i++) {
@@ -4445,8 +4458,21 @@
         // ANIMATE
         // ============================================
 
+        // Detectar mobile uma vez para performance
+        const isMobileDevice = window.innerWidth <= 768;
+
         function animate() {
             requestAnimationFrame(animate);
+
+            // No mobile, simplificar animações
+            if (isMobileDevice) {
+                // Apenas rotação automática e render
+                if (currentVisibleModel && !isModelDragging && !isTransitioning) {
+                    currentVisibleModel.rotation.y += 0.006; // Mais lento no mobile
+                }
+                renderer.render(scene, camera);
+                return;
+            }
 
             const time = Date.now() * 0.001;
 
@@ -4470,7 +4496,7 @@
                         currentObject.position.z += (targetPos[2] - currentObject.position.z) * 0.1;
                     }
                 }
-                
+
                 // Animação de pulso no glow quando selecionado
                 if (currentObject.userData.isSelected && currentObject.userData.glowMesh) {
                     const pulse = Math.sin(time * 2) * 0.1 + 0.2;
@@ -4482,7 +4508,7 @@
                     const rotationSpeed = currentObject.userData.isBaseModel ? 0.002 : 0.005;
                     currentObject.rotation.y += rotationSpeed;
                 }
-                
+
                 // Animação de pulso na parte selecionada do modelo base
                 if (currentObject.userData.isBaseModel && currentObject.userData.selectedPart) {
                     const selectedMesh = currentObject.userData.selectedPart;
