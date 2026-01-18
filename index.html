@@ -1,0 +1,4197 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RENOVAR - Odontologia e Estética</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #0a0a0a;
+            --bg-dark: #050505;
+            --bg-light: #151515;
+            --text: #ffffff;
+            --text-muted: #888;
+            --accent: #1a1a1a;
+            --highlight: #00d4ff;
+            --neon-blue: #00d4ff;
+            --neon-purple: #a855f7;
+            --neon-cyan: #06b6d4;
+        }
+
+        html {
+            font-size: 16px;
+        }
+
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            cursor: none;
+            position: relative;
+        }
+
+        /* Background animado com scroll */
+        .animated-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .bg-gradient-1 {
+            position: absolute;
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.25) 0%, transparent 70%);
+            border-radius: 50%;
+            top: -400px;
+            left: -400px;
+            will-change: transform;
+            transition: transform 0.1s ease-out;
+        }
+
+        .bg-gradient-2 {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.2) 0%, transparent 70%);
+            border-radius: 50%;
+            bottom: -300px;
+            right: -300px;
+            will-change: transform;
+            transition: transform 0.1s ease-out;
+        }
+
+        .bg-gradient-3 {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.15) 0%, transparent 70%);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            will-change: transform;
+            transition: transform 0.1s ease-out;
+        }
+
+        /* Grid de fundo animado - MAIS VISÍVEL */
+        .bg-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 800%;
+            background-image:
+                linear-gradient(rgba(0, 212, 255, 0.08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 212, 255, 0.08) 1px, transparent 1px);
+            background-size: 80px 80px;
+            will-change: transform;
+            opacity: 1;
+        }
+
+        /* Linhas de movimento vertical */
+        .bg-lines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 200%;
+            opacity: 0.15;
+        }
+
+        .bg-line {
+            position: absolute;
+            width: 1px;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent, var(--neon-blue), transparent);
+        }
+
+        .bg-line:nth-child(1) {
+            left: 20%;
+            animation: lineMove 20s linear infinite;
+        }
+
+        .bg-line:nth-child(2) {
+            left: 50%;
+            animation: lineMove 25s linear infinite;
+            animation-delay: -5s;
+        }
+
+        .bg-line:nth-child(3) {
+            left: 80%;
+            animation: lineMove 30s linear infinite;
+            animation-delay: -10s;
+        }
+
+        @keyframes lineMove {
+            0% {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 0;
+            }
+        }
+
+        /* Barra de progresso lateral */
+        .scroll-progress-bar {
+            position: fixed;
+            right: 0;
+            top: 0;
+            width: 4px;
+            height: 100vh;
+            background: rgba(0, 212, 255, 0.1);
+            z-index: 1000;
+            pointer-events: none;
+        }
+
+        .scroll-progress-fill {
+            width: 100%;
+            height: 0%;
+            background: linear-gradient(to bottom, var(--neon-blue), var(--neon-purple));
+            box-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-purple);
+            transition: height 0.1s ease-out;
+        }
+
+        /* Scroll suave para toda a página */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Indicadores de seção lateral */
+        .section-indicators {
+            position: fixed;
+            left: 2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            pointer-events: auto;
+        }
+
+        .section-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            pointer-events: auto;
+        }
+
+        .section-dot::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: transparent;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .section-dot.active {
+            background: var(--neon-blue);
+            box-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--neon-blue);
+            transform: scale(1.3);
+        }
+
+        .section-dot.active::before {
+            border-color: rgba(0, 212, 255, 0.3);
+            animation: pulseRing 2s ease-out infinite;
+        }
+
+        .section-dot:hover:not(.active) {
+            background: rgba(0, 212, 255, 0.5);
+            transform: scale(1.2);
+        }
+
+        @keyframes pulseRing {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(2);
+                opacity: 0;
+            }
+        }
+
+        /* Velocímetro de scroll */
+        .scroll-velocity {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 60px;
+            height: 60px;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .scroll-velocity.visible {
+            opacity: 1;
+        }
+
+        .scroll-velocity-ring {
+            fill: none;
+            stroke: rgba(255, 255, 255, 0.1);
+            stroke-width: 2;
+        }
+
+        .scroll-velocity-fill {
+            fill: none;
+            stroke: var(--neon-blue);
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-dasharray: 157;
+            stroke-dashoffset: 157;
+            transition: stroke-dashoffset 0.1s ease-out;
+            filter: drop-shadow(0 0 5px var(--neon-blue));
+        }
+
+        /* Efeito de rastro no scroll */
+        .scroll-trails {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+            overflow: hidden;
+        }
+
+        .scroll-trail {
+            position: absolute;
+            width: 2px;
+            height: 50px;
+            background: linear-gradient(to bottom, transparent, var(--neon-blue), transparent);
+            opacity: 0;
+            animation: trailFade 1s ease-out forwards;
+        }
+
+        @keyframes trailFade {
+            0% {
+                opacity: 0.5;
+                transform: translateY(0);
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(100px);
+            }
+        }
+
+        /* Custom Cursor */
+        .cursor {
+            position: fixed;
+            width: 12px;
+            height: 12px;
+            background: var(--text);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            mix-blend-mode: difference;
+            transition: transform 0.2s ease;
+        }
+
+        .cursor.hover {
+            transform: scale(3);
+            background: var(--neon-blue);
+            box-shadow: 0 0 20px var(--neon-blue);
+        }
+
+        /* Loader */
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: var(--bg);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 1s ease, visibility 1s ease;
+        }
+
+        #loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-logo {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.5rem;
+            letter-spacing: 0.3em;
+            color: var(--text);
+            margin-bottom: 2rem;
+        }
+
+        .loader-progress {
+            width: 200px;
+            height: 1px;
+            background: rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loader-bar {
+            position: absolute;
+            height: 100%;
+            background: var(--text);
+            animation: load 2s ease-in-out forwards;
+        }
+
+        @keyframes load {
+            0% { width: 0; left: 0; }
+            50% { width: 100%; left: 0; }
+            100% { width: 0; left: 100%; }
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 2rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            mix-blend-mode: difference;
+            pointer-events: none;
+        }
+
+        nav a, nav button {
+            pointer-events: auto;
+        }
+
+        .logo {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--neon-blue);
+            text-decoration: none;
+            letter-spacing: 0.2em;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .logo:hover {
+            text-shadow: 0 0 30px rgba(0, 212, 255, 0.8);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 3rem;
+        }
+
+        .nav-link {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: white;
+            text-decoration: none;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            opacity: 0.7;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background: var(--neon-blue);
+            box-shadow: 0 0 10px var(--neon-blue);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover {
+            opacity: 1;
+            color: var(--neon-blue);
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .sound-toggle {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: white;
+            background: none;
+            border: none;
+            cursor: none;
+            letter-spacing: 0.1em;
+        }
+
+        /* Main Canvas Container */
+        #canvas-container {
+            position: fixed;
+            inset: 0;
+            z-index: 500; /* Alto para ficar acima de tudo */
+            transition: filter 0.3s ease, opacity 0.5s ease;
+        }
+
+        #canvas-container canvas {
+            pointer-events: auto !important; /* Forçar canvas a receber eventos */
+            cursor: grab;
+        }
+
+        /* Transição entre modelos com blur */
+        #canvas-container.transitioning {
+            filter: blur(20px) brightness(0.7);
+            opacity: 0.8;
+        }
+
+        /* Overlay escuro que aparece com blur */
+        .blur-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 10, 10, 0);
+            z-index: 2;
+            pointer-events: none;
+            transition: background 0.8s ease;
+        }
+
+        .blur-overlay.active {
+            background: rgba(10, 10, 10, 0.4);
+        }
+
+        /* Garantir que seções fiquem acima do fundo */
+        .section, .scroll-section {
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Info Labels - Estilo igloo.inc */
+        .info-label {
+            position: fixed;
+            z-index: 600;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+        }
+
+        .info-label.visible {
+            opacity: 1;
+        }
+
+        .info-label .connector {
+            position: absolute;
+            background: var(--text);
+            opacity: 0.3;
+        }
+
+        .info-label .connector.horizontal {
+            height: 1px;
+            width: 80px;
+        }
+
+        .info-label .connector.vertical {
+            width: 1px;
+            height: 40px;
+        }
+
+        .info-label .connector.diagonal {
+            width: 60px;
+            height: 1px;
+            transform-origin: left center;
+        }
+
+        .info-label .content {
+            position: absolute;
+        }
+
+        .info-label .tag {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.3rem;
+        }
+
+        .info-label .value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .info-label .small {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            margin-top: 0.2rem;
+        }
+
+        /* Label posições */
+        #label-1 {
+            top: 18%;
+            left: 12%;
+        }
+
+        #label-1 .connector {
+            width: 120px;
+            transform: rotate(25deg);
+        }
+
+        #label-1 .content {
+            top: -30px;
+            left: 0;
+        }
+
+        #label-2 {
+            top: 35%;
+            right: 15%;
+        }
+
+        #label-2 .connector {
+            width: 100px;
+            right: 0;
+        }
+
+        #label-2 .content {
+            right: 110px;
+            top: -15px;
+            text-align: right;
+        }
+
+        #label-3 {
+            bottom: 30%;
+            right: 18%;
+        }
+
+        #label-3 .connector.vertical {
+            right: 0;
+            bottom: 0;
+        }
+
+        #label-3 .content {
+            right: 15px;
+            bottom: 50px;
+            text-align: right;
+        }
+
+        #label-4 {
+            bottom: 25%;
+            left: 15%;
+        }
+
+        #label-4 .connector {
+            width: 80px;
+            transform: rotate(-15deg);
+        }
+
+        #label-4 .content {
+            left: 0;
+            bottom: 20px;
+        }
+
+        /* Data Panel - Estilo técnico */
+        .data-panel {
+            position: fixed;
+            bottom: 4rem;
+            right: 4rem;
+            z-index: 100;
+            text-align: right;
+        }
+
+        .data-row {
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.6s ease;
+        }
+
+        .data-row.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .data-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.3rem;
+        }
+
+        .data-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 300;
+            color: var(--neon-blue);
+            letter-spacing: -0.02em;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        .data-value span {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        /* Scroll Indicator */
+        .scroll-indicator {
+            position: fixed;
+            bottom: 4rem;
+            left: 4rem;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .scroll-text {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+        }
+
+        .scroll-line {
+            width: 1px;
+            height: 60px;
+            background: linear-gradient(to bottom, var(--neon-blue) 0%, transparent 100%);
+            margin-left: 0.3rem;
+            position: relative;
+            box-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        .scroll-dot {
+            width: 5px;
+            height: 5px;
+            background: var(--neon-blue);
+            border-radius: 50%;
+            position: absolute;
+            left: -2px;
+            animation: scrollDot 2s ease-in-out infinite;
+            box-shadow: 0 0 10px var(--neon-blue);
+        }
+
+        @keyframes scrollDot {
+            0%, 100% { top: 0; opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+
+        /* Center Info - Posicionado na parte inferior */
+        .center-info {
+            position: fixed;
+            bottom: 6rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 700;
+            text-align: center;
+            pointer-events: none !important;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .center-info.visible {
+            opacity: 1;
+        }
+
+        .center-info .title {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .center-info .main {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.4rem;
+            font-weight: 500;
+            color: var(--neon-blue);
+            margin-bottom: 0.3rem;
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        .center-info .sub {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            letter-spacing: 0.1em;
+        }
+
+        .center-info .instruction {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--neon-blue);
+            letter-spacing: 0.1em;
+            margin-top: 1rem;
+            opacity: 0.7;
+        }
+
+        .inspection-hint {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 600;
+            pointer-events: none;
+            background: rgba(0, 212, 255, 0.1);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--neon-blue);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            pointer-events: none;
+        }
+
+        .inspection-hint.visible {
+            opacity: 1;
+        }
+
+        /* Detail Panel - Estilo igloo.inc */
+        .detail-panel {
+            position: fixed;
+            bottom: 8rem;
+            left: 4rem;
+            z-index: 700;
+            max-width: 400px;
+            opacity: 1;
+            transition: all 0.5s ease;
+            pointer-events: auto;
+        }
+
+        .detail-panel.visible {
+            opacity: 1;
+        }
+
+        .detail-content {
+            background: rgba(10, 10, 10, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 212, 255, 0.2);
+            padding: 2.5rem;
+            border-radius: 4px;
+        }
+
+        .detail-number {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            color: var(--neon-blue);
+            margin-bottom: 1rem;
+            opacity: 0.6;
+        }
+
+        .detail-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 1rem;
+            line-height: 1.2;
+        }
+
+        .detail-description {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.95rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 2rem;
+        }
+
+        .detail-features {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(0, 212, 255, 0.1);
+        }
+
+        .feature-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .feature-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .feature-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9rem;
+            color: var(--neon-blue);
+            font-weight: 500;
+        }
+
+        .detail-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--neon-blue);
+            text-decoration: none;
+            padding: 0.8rem 1.5rem;
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .detail-cta:hover {
+            background: rgba(0, 212, 255, 0.1);
+            border-color: var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.3);
+        }
+
+        /* Botão para abrir modal em mobile */
+        .mobile-info-btn {
+            display: none;
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 800;
+            padding: 1rem 2rem;
+            background: rgba(0, 212, 255, 0.15);
+            border: 1px solid var(--neon-blue);
+            border-radius: 50px;
+            color: var(--neon-blue);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+        }
+
+        .mobile-info-btn:hover,
+        .mobile-info-btn:active {
+            background: rgba(0, 212, 255, 0.3);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.4);
+        }
+
+        .mobile-info-btn .btn-icon {
+            display: inline-block;
+            margin-right: 0.5rem;
+            font-size: 1rem;
+        }
+
+        /* Botão de fechar modal */
+        .modal-close {
+            display: none;
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: rotate(90deg);
+        }
+
+        @media (max-width: 768px) {
+            .mobile-info-btn {
+                display: flex;
+                align-items: center;
+                transition: opacity 0.3s ease;
+            }
+
+            /* Esconder detail-panel padrão em mobile */
+            .detail-panel:not(.visible) {
+                opacity: 0;
+                visibility: hidden;
+            }
+        }
+
+        @media (max-width: 1024px) {
+            .detail-panel {
+                left: 2rem;
+                bottom: 4rem;
+                max-width: 350px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            /* Em mobile, o detail-panel vira um modal */
+            .detail-panel {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                max-width: 100%;
+                z-index: 2000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: rgba(0, 0, 0, 0.9);
+                backdrop-filter: blur(10px);
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.4s ease;
+                padding: 1rem;
+            }
+
+            .detail-panel.visible {
+                opacity: 1;
+                visibility: visible;
+            }
+
+            .detail-panel .detail-content {
+                max-width: 100%;
+                max-height: 90vh;
+                overflow-y: auto;
+                position: relative;
+                animation: modalSlideUp 0.4s ease;
+            }
+
+            @keyframes modalSlideUp {
+                from {
+                    opacity: 0;
+                    transform: translateY(50px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            /* Botão de fechar modal */
+            .modal-close {
+                display: flex;
+            }
+
+            .center-info {
+                display: none;
+            }
+        }
+
+        /* Progress Ring */
+        .progress-ring {
+            position: fixed;
+            bottom: 4rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+        }
+
+        .progress-ring svg {
+            width: 50px;
+            height: 50px;
+            transform: rotate(-90deg);
+        }
+
+        .progress-ring circle {
+            fill: none;
+            stroke-width: 1;
+        }
+
+        .progress-ring .bg {
+            stroke: rgba(0,0,0,0.1);
+        }
+
+        .progress-ring .progress {
+            stroke: var(--neon-blue);
+            stroke-dasharray: 138;
+            stroke-dashoffset: 138;
+            transition: stroke-dashoffset 0.3s ease;
+            filter: drop-shadow(0 0 5px var(--neon-blue));
+        }
+
+        .progress-ring .number {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            color: var(--neon-blue);
+            text-shadow: 0 0 10px rgba(0, 212, 255, 0.5);
+        }
+
+        /* Sections */
+        /* Scroll Sections - Estilo igloo.inc */
+        .scroll-section {
+            min-height: 100vh;
+            position: relative;
+            z-index: 5; /* Abaixo do canvas interativo */
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .scroll-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .scroll-section:first-of-type {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .scroll-section-content {
+            width: 100%;
+            max-width: 800px;
+            padding: 2rem 4rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .scroll-section-content h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 400;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .scroll-section-content p {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            line-height: 1.8;
+            max-width: 600px;
+        }
+
+        .scroll-section-content .feature-list {
+            display: flex;
+            gap: 2rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .scroll-section-content .feature-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .scroll-section-content .feature-value {
+            font-family: 'Space Mono', monospace;
+            font-size: 2rem;
+            color: var(--neon-blue);
+            text-shadow: 0 0 20px rgba(0, 212, 255, 0.5);
+        }
+
+        .scroll-section-content .feature-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+        }
+
+        .section {
+            min-height: 100vh;
+            position: relative;
+            z-index: 200;
+            background: var(--bg);
+            background-image: 
+                linear-gradient(180deg, rgba(0, 212, 255, 0.02) 0%, transparent 50%);
+        }
+
+        .section-content {
+            padding: 15vh 10vw;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            margin-bottom: 8rem;
+        }
+
+        .section-tag {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .section-tag::before {
+            content: '';
+            width: 30px;
+            height: 1px;
+            background: var(--text-muted);
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(2.5rem, 6vw, 4.5rem);
+            font-weight: 400;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #ffffff 0%, var(--neon-blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Services Grid */
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            background: rgba(0,0,0,0.1);
+            margin-top: 4rem;
+        }
+
+        .service-item {
+            background: var(--bg-light);
+            padding: 3rem;
+            position: relative;
+            transition: all 0.4s ease;
+            border: 1px solid rgba(0, 212, 255, 0.1);
+        }
+
+        .service-item:hover {
+            background: var(--bg-dark);
+            border-color: rgba(0, 212, 255, 0.3);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.2);
+        }
+
+        .service-number {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            margin-bottom: 2rem;
+            letter-spacing: 0.2em;
+        }
+
+        .service-title {
+            font-size: 1.3rem;
+            font-weight: 500;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+            color: var(--text);
+            transition: color 0.3s ease;
+        }
+
+        .service-item:hover .service-title {
+            color: var(--neon-blue);
+        }
+
+        .service-desc {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+
+        .service-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--text);
+            text-decoration: none;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s ease;
+        }
+
+        .service-item:hover .service-link {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Contact Section */
+        .contact-section {
+            background: linear-gradient(180deg, var(--bg) 0%, var(--bg-dark) 100%);
+            color: white;
+            border-top: 1px solid rgba(0, 212, 255, 0.2);
+        }
+
+        .contact-section .section-tag {
+            color: rgba(255,255,255,0.5);
+        }
+
+        .contact-section .section-tag::before {
+            background: rgba(255,255,255,0.3);
+        }
+
+        .contact-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8rem;
+            margin-top: 4rem;
+        }
+
+        .contact-info {
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+        }
+
+        .contact-item {
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 2rem;
+        }
+
+        .contact-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 0.8rem;
+        }
+
+        .contact-value {
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+
+        .contact-value a {
+            color: white;
+            text-decoration: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .contact-value a:hover {
+            opacity: 0.7;
+        }
+
+        .contact-form input,
+        .contact-form textarea {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            padding: 1.5rem 0;
+            color: white;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .contact-form input:focus,
+        .contact-form textarea:focus {
+            outline: none;
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        .contact-form input::placeholder,
+        .contact-form textarea::placeholder {
+            color: rgba(255,255,255,0.3);
+        }
+
+        .contact-form button {
+            margin-top: 2rem;
+            padding: 1.2rem 3rem;
+            background: white;
+            color: var(--accent);
+            border: none;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            cursor: none;
+            transition: all 0.3s ease;
+        }
+
+        .contact-form button:hover {
+            background: var(--neon-blue);
+            color: var(--bg);
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.5);
+        }
+
+        /* Footer */
+        footer {
+            background: #000;
+            color: white;
+            padding: 3rem 4rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(0, 212, 255, 0.1);
+        }
+
+        footer .copyright {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.6rem;
+            color: rgba(255,255,255,0.4);
+            letter-spacing: 0.1em;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .services-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .contact-grid {
+                grid-template-columns: 1fr;
+                gap: 4rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                padding: 1.5rem 2rem;
+            }
+
+            .nav-right {
+                display: none;
+            }
+
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .data-panel {
+                display: none;
+            }
+
+            .info-label {
+                display: none;
+            }
+
+            .scroll-indicator {
+                left: 2rem;
+                bottom: 2rem;
+            }
+
+            .cursor {
+                display: none;
+            }
+
+            body {
+                cursor: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+
+    <!-- Barra de progresso lateral -->
+    <div class="scroll-progress-bar">
+        <div class="scroll-progress-fill" id="scrollProgressFill"></div>
+    </div>
+
+    <!-- Indicadores de seção (clicáveis) -->
+    <div class="section-indicators" id="sectionIndicators">
+        <button class="section-dot active" data-section="0" title="Lentes de Contato"></button>
+        <button class="section-dot" data-section="1" title="Escova de Dente"></button>
+        <button class="section-dot" data-section="2" title="Fio Dental"></button>
+    </div>
+
+    <!-- Velocímetro de scroll -->
+    <svg class="scroll-velocity" id="scrollVelocity" viewBox="0 0 60 60">
+        <circle class="scroll-velocity-ring" cx="30" cy="30" r="25"/>
+        <circle class="scroll-velocity-fill" id="velocityFill" cx="30" cy="30" r="25" transform="rotate(-90 30 30)"/>
+    </svg>
+
+    <!-- Container para rastros de scroll -->
+    <div class="scroll-trails" id="scrollTrails"></div>
+
+    <!-- Loader -->
+    <div id="loader">
+        <div class="loader-logo">RENOVAR</div>
+        <div class="loader-progress">
+            <div class="loader-bar"></div>
+        </div>
+        <div id="loaderStatus" style="position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--neon-blue); opacity: 0.7;">Carregando modelo 3D...</div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <a href="#" class="logo">RENOVAR</a>
+        <div class="nav-right">
+            <a href="#services" class="nav-link">Serviços</a>
+            <a href="#contact" class="nav-link">Contato</a>
+            <button class="sound-toggle">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M11 5L6 9H2v6h4l5 4V5z"/>
+                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                </svg>
+                Sound: On
+            </button>
+        </div>
+    </nav>
+
+    <!-- Barra de progresso lateral -->
+    <div class="scroll-progress-bar">
+        <div class="scroll-progress-fill" id="scrollProgressFill"></div>
+    </div>
+
+    <!-- Animated Background -->
+    <div class="animated-background">
+        <div class="bg-gradient-1" id="bgGradient1"></div>
+        <div class="bg-gradient-2" id="bgGradient2"></div>
+        <div class="bg-gradient-3" id="bgGradient3"></div>
+        <div class="bg-grid" id="bgGrid"></div>
+        <div class="bg-lines">
+            <div class="bg-line"></div>
+            <div class="bg-line"></div>
+            <div class="bg-line"></div>
+        </div>
+    </div>
+
+    <!-- 3D Canvas -->
+    <div id="canvas-container"></div>
+
+    <!-- Blur Overlay -->
+    <div class="blur-overlay" id="blurOverlay"></div>
+
+    <!-- Info Labels -->
+    <div class="info-label visible" id="label-1">
+        <div class="connector horizontal diagonal"></div>
+        <div class="content">
+            <div class="tag">Procedimento_01</div>
+            <div class="value">Lentes de Contato</div>
+            <div class="small">PORCELANA ULTRAFINA</div>
+        </div>
+    </div>
+
+    <div class="info-label visible" id="label-2">
+        <div class="connector horizontal"></div>
+        <div class="content">
+            <div class="tag">Tecnologia</div>
+            <div class="value">CAD/CAM 3D</div>
+            <div class="small">PRECISÃO DIGITAL</div>
+        </div>
+    </div>
+
+    <div class="info-label visible" id="label-3">
+        <div class="connector vertical"></div>
+        <div class="content">
+            <div class="tag">Resultado</div>
+            <div class="value">+8 Tons</div>
+            <div class="small">CLAREAMENTO LASER</div>
+        </div>
+    </div>
+
+    <div class="info-label visible" id="label-4">
+        <div class="connector horizontal diagonal"></div>
+        <div class="content">
+            <div class="tag">Durabilidade</div>
+            <div class="value">15+ Anos</div>
+            <div class="small">GARANTIA ESTENDIDA</div>
+        </div>
+    </div>
+
+    <!-- Center Info -->
+    <div class="center-info" id="centerInfo">
+        <div class="title">Serviço_<span id="curiosityNum">01</span></div>
+        <div class="main" id="curiosityTitle">Lentes de Contato Dental</div>
+        <div class="sub" id="curiositySub"></div>
+        <div class="instruction">ARRASTE PARA MOVER • RODE PARA GIRAR</div>
+    </div>
+
+    <!-- Inspection Hint -->
+    <div class="inspection-hint" id="inspectionHint">
+        CLIQUE EM QUALQUER DENTE PARA VER INFORMAÇÕES DETALHADAS
+    </div>
+
+    <!-- Botão para abrir modal em mobile -->
+    <button class="mobile-info-btn" id="mobileInfoBtn">
+        <span class="btn-icon">+</span>
+        Ver Detalhes
+    </button>
+
+    <!-- Detailed Info Panel - Estilo igloo.inc -->
+    <div class="detail-panel" id="detailPanel">
+        <button class="modal-close" id="modalClose">×</button>
+        <div class="detail-content">
+            <div class="detail-number">01</div>
+            <div class="detail-title" id="detailTitle">Lentes de Contato Dental</div>
+            <div class="detail-description" id="detailDescription">
+                Facetas ultrafinas de porcelana com apenas 0.3mm de espessura. 
+                Transformação completa do sorriso com mínimo desgaste dental. 
+                Resultados naturais e duradouros.
+            </div>
+            <div class="detail-features">
+                <div class="feature-item">
+                    <span class="feature-label">Espessura</span>
+                    <span class="feature-value">0.3mm</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-label">Durabilidade</span>
+                    <span class="feature-value">15+ anos</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-label">Material</span>
+                    <span class="feature-value">Porcelana</span>
+                </div>
+            </div>
+            <a href="#contact" class="detail-cta">Agendar Consulta →</a>
+        </div>
+    </div>
+
+    <!-- Data Panel -->
+    <div class="data-panel">
+        <div class="data-row visible">
+            <div class="data-label">Satisfação</div>
+            <div class="data-value">98.7<span>%</span></div>
+        </div>
+        <div class="data-row visible" style="transition-delay: 0.1s;">
+            <div class="data-label">Procedimentos</div>
+            <div class="data-value">2,847</div>
+        </div>
+        <div class="data-row visible" style="transition-delay: 0.2s;">
+            <div class="data-label">Anos</div>
+            <div class="data-value">12<span>+</span></div>
+        </div>
+    </div>
+
+    <!-- Scroll Indicator -->
+    <div class="scroll-indicator">
+        <div class="scroll-text">Scroll</div>
+        <div class="scroll-line">
+            <div class="scroll-dot"></div>
+        </div>
+    </div>
+
+    <!-- Progress Ring -->
+    <div class="progress-ring">
+        <svg viewBox="0 0 50 50">
+            <circle class="bg" cx="25" cy="25" r="22"/>
+            <circle class="progress" id="progressCircle" cx="25" cy="25" r="22"/>
+        </svg>
+        <div class="number" id="progressNumber">01</div>
+    </div>
+
+    <!-- Scroll Sections for Services -->
+    <section class="scroll-section visible" id="scroll-section-0">
+        <div class="scroll-section-content">
+            <!-- Primeira seção vazia - apenas o modelo 3D centralizado -->
+        </div>
+    </section>
+
+    <section class="scroll-section" id="scroll-section-1">
+        <div class="scroll-section-content">
+            <h2>Escova de Dente Premium</h2>
+            <p>Escova dental de alta performance com cerdas ultra macias e design ergonômico. Tecnologia de ponta para uma limpeza profunda e cuidado com suas gengivas.</p>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <span class="feature-value">Ultra</span>
+                    <span class="feature-label">Macias</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-value">3</span>
+                    <span class="feature-label">Meses</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-value">360°</span>
+                    <span class="feature-label">Limpeza</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="scroll-section" id="scroll-section-2">
+        <div class="scroll-section-content">
+            <h2>Fio Dental Profissional</h2>
+            <p>Fio dental de alta resistência com tecnologia deslizante. Remove até 99% da placa bacteriana entre os dentes onde a escova não alcança.</p>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <span class="feature-value">99%</span>
+                    <span class="feature-label">Eficácia</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-value">50m</span>
+                    <span class="feature-label">Comprimento</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-value">Menta</span>
+                    <span class="feature-label">Sabor</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="section" id="services">
+        <div class="section-content">
+            <div class="section-header">
+                <div class="section-tag">Serviços_2024</div>
+                <h2 class="section-title">Excelência em<br>cada procedimento</h2>
+            </div>
+
+            <div class="services-grid">
+                <div class="service-item">
+                    <div class="service-number">01</div>
+                    <h3 class="service-title">Lentes de Contato Dental</h3>
+                    <p class="service-desc">Facetas ultrafinas de porcelana com apenas 0.3mm de espessura. Transformação completa do sorriso com mínimo desgaste dental.</p>
+                    <a href="#contact" class="service-link">Agendar →</a>
+                </div>
+
+                <div class="service-item">
+                    <div class="service-number">02</div>
+                    <h3 class="service-title">Clareamento a Laser</h3>
+                    <p class="service-desc">Tecnologia LED de última geração. Resultados de até 8 tons mais brancos em uma única sessão de 45 minutos.</p>
+                    <a href="#contact" class="service-link">Agendar →</a>
+                </div>
+
+                <div class="service-item">
+                    <div class="service-number">03</div>
+                    <h3 class="service-title">Implantes Dentários</h3>
+                    <p class="service-desc">Implantes de titânio com planejamento digital 3D. Procedimento guiado para máxima precisão e menor tempo de recuperação.</p>
+                    <a href="#contact" class="service-link">Agendar →</a>
+                </div>
+
+                <div class="service-item">
+                    <div class="service-number">04</div>
+                    <h3 class="service-title">Ortodontia Invisível</h3>
+                    <p class="service-desc">Alinhadores transparentes personalizados com tecnologia de escaneamento intraoral. Resultados previsíveis em menos tempo.</p>
+                    <a href="#contact" class="service-link">Agendar →</a>
+                </div>
+
+                <div class="service-item">
+                    <div class="service-number">05</div>
+                    <h3 class="service-title">Harmonização Facial</h3>
+                    <p class="service-desc">Botox, preenchimentos e bioestimuladores. Protocolos personalizados para realçar sua beleza natural de forma sutil.</p>
+                    <a href="#contact" class="service-link">Agendar →</a>
+                </div>
+
+                <div class="service-item">
+                    <div class="service-number">06</div>
+                    <h3 class="service-title">Reabilitação Oral</h3>
+                    <p class="service-desc">Restauração completa da função mastigatória e estética. Próteses sobre implantes com tecnologia CAD/CAM.</p>
+                    <a href="#contact" class="service-link">Agendar →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="section contact-section" id="contact">
+        <div class="section-content">
+            <div class="section-header">
+                <div class="section-tag">Contato</div>
+                <h2 class="section-title">Vamos criar seu<br>novo sorriso</h2>
+            </div>
+
+            <div class="contact-grid">
+                <div class="contact-info">
+                    <div class="contact-item">
+                        <div class="contact-label">WhatsApp</div>
+                        <div class="contact-value"><a href="https://wa.me/5511999999999">(11) 99999-9999</a></div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-label">Email</div>
+                        <div class="contact-value"><a href="mailto:contato@renovar.com.br">contato@renovar.com.br</a></div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-label">Endereço</div>
+                        <div class="contact-value">Av. Paulista, 1000<br>São Paulo, SP</div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-label">Horário</div>
+                        <div class="contact-value">Seg—Sex: 08:00—20:00</div>
+                    </div>
+                </div>
+
+                <form class="contact-form">
+                    <input type="text" placeholder="Nome completo" required>
+                    <input type="email" placeholder="Email" required>
+                    <input type="tel" placeholder="Telefone" required>
+                    <textarea rows="3" placeholder="Mensagem"></textarea>
+                    <button type="submit">Enviar Mensagem</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="copyright">© 2024 RENOVAR ODONTOLOGIA E ESTÉTICA</div>
+        <div class="copyright">DESIGNED WITH PRECISION</div>
+    </footer>
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <!-- OBJLoader para carregar arquivos .obj - tentar múltiplos CDNs -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js" 
+            onerror="console.warn('Erro ao carregar OBJLoader do CDN principal, tentando alternativo...'); 
+                     var script = document.createElement('script');
+                     script.src = 'https://threejs.org/examples/js/loaders/OBJLoader.js';
+                     script.onerror = function() { 
+                         console.warn('OBJLoader não disponível de todos os CDNs. O site continuará funcionando com modelos procedurais.'); 
+                     };
+                     document.head.appendChild(script);"></script>
+
+    <script>
+        // ============================================
+        // SCROLL PARA O TOPO AO RECARREGAR
+        // ============================================
+        if ('scrollRestoration' in history) {
+            history.scrollRestoration = 'manual';
+        }
+        window.scrollTo(0, 0);
+
+        // ============================================
+        // SCROLL SUAVE PARA LINKS DA NAVBAR
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function() {
+            // Scroll para o topo ao carregar
+            window.scrollTo(0, 0);
+
+            // Adicionar scroll suave para todos os links internos
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetId = this.getAttribute('href');
+
+                    if (targetId === '#') {
+                        // Se for apenas "#", vai para o topo
+                        window.scrollTo({
+                            top: 0,
+                            behavior: 'smooth'
+                        });
+                        return;
+                    }
+
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        targetElement.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+
+            // Atualizar barra de progresso no scroll
+            function updateScrollProgress() {
+                const scrollTop = window.scrollY;
+                const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+                const scrollPercent = (scrollTop / docHeight) * 100;
+
+                const progressFill = document.getElementById('scrollProgressFill');
+                if (progressFill) {
+                    progressFill.style.height = scrollPercent + '%';
+                }
+            }
+
+            window.addEventListener('scroll', updateScrollProgress);
+            updateScrollProgress(); // Inicial
+        });
+
+        // ============================================
+        // CONFIGURAÇÃO
+        // ============================================
+
+        let scene, camera, renderer, controls;
+        let teethGroup;
+        let particles; // Variável global para partículas
+        let baseModel = null; // Modelo base.obj carregado uma única vez (cache)
+        let baseModelLoaded = false; // Flag para evitar recarregamentos
+        let mouseX = 0, mouseY = 0;
+        let targetRotationX = 0, targetRotationY = 0;
+        let currentRotationX = 0, currentRotationY = 0;
+        let scrollProgress = 0;
+        let lastScrollY = 0;
+        let scrollVelocity = 0;
+
+        const services = [
+            {
+                title: "Lentes de Contato Dental",
+                sub: "ARRASTE PARA MOVER • RODE PARA GIRAR",
+                description: "Facetas ultrafinas de porcelana com apenas 0.3mm de espessura. Transformação completa do sorriso com mínimo desgaste dental.",
+                features: [
+                    { label: "Espessura", value: "0.3mm" },
+                    { label: "Durabilidade", value: "15+ anos" },
+                    { label: "Material", value: "Porcelana" }
+                ],
+                objPath: 'base.obj'
+            },
+            {
+                title: "Escova de Dente Premium",
+                sub: "ARRASTE PARA MOVER • RODE PARA GIRAR",
+                description: "Escova dental de alta performance com cerdas ultra macias e design ergonômico para limpeza profunda.",
+                features: [
+                    { label: "Cerdas", value: "Ultra Macias" },
+                    { label: "Duração", value: "3 meses" },
+                    { label: "Limpeza", value: "360°" }
+                ],
+                objPath: 'escova.obj'
+            },
+            {
+                title: "Fio Dental Profissional",
+                sub: "ARRASTE PARA MOVER • RODE PARA GIRAR",
+                description: "Fio dental de alta resistência com tecnologia deslizante. Remove até 99% da placa bacteriana entre os dentes.",
+                features: [
+                    { label: "Eficácia", value: "99%" },
+                    { label: "Comprimento", value: "50m" },
+                    { label: "Sabor", value: "Menta" }
+                ],
+                objPath: 'fio_dental.obj'
+            }
+        ];
+
+        let currentService = 0;
+        let focusedTooth = null;
+        let raycaster;
+        let mouse = new THREE.Vector2();
+
+        // Variáveis para controle de arrasto do modelo
+        let isModelDragging = false;
+        let modelDragStart = { x: 0, y: 0 };
+        let modelRotationVelocity = { x: 0, y: 0 };
+        let autoRotateModel = true;
+        let lastDragTime = 0;
+
+        // ============================================
+        // INIT
+        // ============================================
+
+        function init() {
+            console.log('🚀 Inicializando aplicação...');
+            console.log('THREE disponível?', typeof THREE !== 'undefined');
+            console.log('THREE.OBJLoader disponível?', typeof THREE !== 'undefined' && typeof THREE.OBJLoader !== 'undefined');
+            
+            const container = document.getElementById('canvas-container');
+
+            // Scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0a0a0a);
+            scene.fog = new THREE.Fog(0x0a0a0a, 10, 50);
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 100);
+            camera.position.set(0, 0, 18);
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({
+                antialias: true,
+                alpha: true
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // Limitado para melhor performance
+            renderer.shadowMap.enabled = false; // Desabilitado para melhor performance
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            container.appendChild(renderer.domElement);
+
+            // Controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.enableZoom = false; // Desabilitar zoom para permitir scroll da página
+            controls.enablePan = false;
+            controls.enableRotate = false; // Desabilitar rotação do OrbitControls (usamos nossa própria)
+            controls.minDistance = 10;
+            controls.maxDistance = 30;
+            controls.autoRotate = false;
+            controls.autoRotateSpeed = 0.3;
+
+            // Lights
+            setupLights();
+
+            // Create teeth
+            console.log('Criando dentes...');
+            createTeeth();
+
+            // Create particles
+            createParticles();
+
+            // Setup raycasting for tooth interaction
+            raycaster = new THREE.Raycaster();
+            setupToothInteraction();
+
+            // Setup drag rotation for 3D model
+            setupModelDragRotation();
+
+            // Events
+            window.addEventListener('resize', onResize);
+            window.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('scroll', onScroll);
+
+            // Hide loader - aguardar carregamento do modelo base
+            // O loader será escondido quando o modelo base for carregado
+            // (ver função loadBaseModel)
+
+            // Cursor
+            initCursor();
+
+            // Animate
+            animate();
+        }
+
+        // ============================================
+        // LIGHTS
+        // ============================================
+
+        function setupLights() {
+            // Ambient
+            const ambient = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambient);
+
+            // Main light - branco suave
+            const mainLight = new THREE.DirectionalLight(0xffffff, 1.2);
+            mainLight.position.set(10, 20, 15);
+            mainLight.castShadow = true;
+            scene.add(mainLight);
+
+            // Fill light
+            const fillLight = new THREE.DirectionalLight(0xffffff, 0.4);
+            fillLight.position.set(-10, 5, -10);
+            scene.add(fillLight);
+
+            // Rim light - neon ciano
+            const rimLight = new THREE.DirectionalLight(0x00d4ff, 0.8);
+            rimLight.position.set(0, -10, -20);
+            scene.add(rimLight);
+
+            // Light adicional - roxo neon
+            const purpleLight = new THREE.DirectionalLight(0xa855f7, 0.5);
+            purpleLight.position.set(-15, 10, 10);
+            scene.add(purpleLight);
+
+            // Point lights para glow nos dentes
+            const pointLight1 = new THREE.PointLight(0x00d4ff, 1.5, 20);
+            pointLight1.position.set(0, 0, 0);
+            scene.add(pointLight1);
+
+            const pointLight2 = new THREE.PointLight(0xa855f7, 1.0, 15);
+            pointLight2.position.set(5, 5, 5);
+            scene.add(pointLight2);
+        }
+
+        // ============================================
+        // CREATE TEETH - Estilo Ultra Futurista
+        // ============================================
+
+        let currentObjectIndex = 0;
+        let currentObject = null;
+        let objLoader;
+        let loaderTimeout = null;
+
+        // Função helper para esconder o loader
+        // Flag para controlar carregamento completo
+        let pageFullyLoaded = false;
+        let modelLoaded = false;
+
+        function checkAndHideLoader() {
+            // Só esconde o loader quando TUDO estiver carregado
+            if (pageFullyLoaded && modelLoaded) {
+                actuallyHideLoader();
+            }
+        }
+
+        function actuallyHideLoader() {
+            try {
+                console.log('✅ Tudo carregado! Escondendo loader...');
+                const loader = document.getElementById('loader');
+                if (loader) {
+                    // Animação suave de fade out
+                    loader.style.transition = 'opacity 0.8s ease, visibility 0.8s ease';
+                    loader.style.opacity = '0';
+                    setTimeout(() => {
+                        loader.classList.add('hidden');
+                        loader.style.display = 'none';
+                    }, 800);
+                }
+                const centerInfo = document.getElementById('centerInfo');
+                if (centerInfo) {
+                    setTimeout(() => {
+                        centerInfo.classList.add('visible');
+                        centerInfo.style.opacity = '1';
+                    }, 300);
+                }
+                const detailPanel = document.getElementById('detailPanel');
+                // Em mobile, não mostrar automaticamente (usa modal)
+                if (detailPanel && window.innerWidth > 768) {
+                    setTimeout(() => {
+                        detailPanel.classList.add('visible');
+                        detailPanel.style.opacity = '1';
+                    }, 600);
+                }
+            } catch (error) {
+                console.error('Erro ao esconder loader:', error);
+                const loader = document.getElementById('loader');
+                if (loader) {
+                    loader.style.display = 'none';
+                }
+            }
+        }
+
+        function hideLoader() {
+            // Marcar modelo como carregado
+            modelLoaded = true;
+            console.log('📦 Modelo 3D carregado');
+            checkAndHideLoader();
+        }
+
+        // Listener para quando a página estiver totalmente carregada
+        window.addEventListener('load', () => {
+            console.log('🌐 Página totalmente carregada');
+            pageFullyLoaded = true;
+            checkAndHideLoader();
+        });
+
+        function createTeeth() {
+            teethGroup = new THREE.Group();
+            scene.add(teethGroup);
+            
+            // Timeout máximo de 3 segundos para esconder loader mesmo se falhar
+            loaderTimeout = setTimeout(() => {
+                console.warn('⏱️ Timeout: Carregamento demorou muito. Escondendo loader.');
+                hideLoader();
+            }, 3000);
+
+            // Timeout de segurança adicional de 5 segundos
+            setTimeout(() => {
+                const loader = document.getElementById('loader');
+                if (loader && !loader.classList.contains('hidden')) {
+                    console.warn('⚠️ Timeout de segurança: Forçando esconder loader');
+                    loader.classList.add('hidden');
+                    loader.style.display = 'none';
+                }
+            }, 5000);
+
+            // Função para verificar e carregar OBJLoader
+            function checkAndLoadOBJLoader(attempt = 0, maxAttempts = 5) {
+                console.log(`Verificando OBJLoader (tentativa ${attempt + 1}/${maxAttempts})...`);
+                
+                // Verificar se THREE está disponível
+                if (typeof THREE === 'undefined') {
+                    console.warn('THREE.js ainda não está disponível');
+                    if (attempt < maxAttempts) {
+                        setTimeout(() => checkAndLoadOBJLoader(attempt + 1, maxAttempts), 500);
+                    } else {
+                        console.error('THREE.js não carregou após várias tentativas. Usando fallback.');
+                        if (loaderTimeout) clearTimeout(loaderTimeout);
+                        showObject(0); // Usar showObject para garantir gerenciamento correto
+                        hideLoader();
+                    }
+                    return;
+                }
+                
+                // Verificar se OBJLoader está disponível
+                if (typeof THREE.OBJLoader !== 'undefined') {
+                    try {
+                        objLoader = new THREE.OBJLoader();
+                        console.log('✅ OBJLoader inicializado com sucesso!');
+                        // Pré-carregar todos os modelos de uma vez
+                        preloadAllModels().then(() => {
+                            hideLoader();
+                        }).catch((error) => {
+                            console.error('Erro no preloadAllModels:', error);
+                            hideLoader(); // Esconder loader mesmo com erro
+                        });
+                    } catch (error) {
+                        console.error('Erro ao criar OBJLoader:', error);
+                        if (attempt < maxAttempts) {
+                            setTimeout(() => checkAndLoadOBJLoader(attempt + 1, maxAttempts), 1000);
+                        } else {
+                            console.error('Não foi possível inicializar OBJLoader. Usando fallback.');
+                            if (loaderTimeout) clearTimeout(loaderTimeout);
+                            hideLoader();
+                        }
+                    }
+                } else {
+                    console.warn('OBJLoader ainda não está disponível');
+                    if (attempt < maxAttempts) {
+                        setTimeout(() => checkAndLoadOBJLoader(attempt + 1, maxAttempts), 1000);
+                    } else {
+                        console.error('OBJLoader não carregou após várias tentativas. Usando fallback.');
+                        if (loaderTimeout) clearTimeout(loaderTimeout);
+                        hideLoader();
+                    }
+                }
+            }
+            
+            // Iniciar verificação após um pequeno delay
+            setTimeout(() => {
+                checkAndLoadOBJLoader();
+            }, 500);
+            
+            // Fallback de segurança: se após 3 segundos ainda não começou, usar fallback
+            setTimeout(() => {
+                if (!currentObject && teethGroup.children.length === 0) {
+                    console.warn('⚠️ Fallback de segurança: Nenhum objeto foi criado. Criando objeto padrão.');
+                    try {
+                        const fallbackTooth = createTooth();
+                        if (fallbackTooth) {
+                            teethGroup.add(fallbackTooth);
+                            currentObject = fallbackTooth;
+                            updateService(0);
+                            hideLoader();
+                        }
+                    } catch (error) {
+                        console.error('Erro no fallback de segurança:', error);
+                        hideLoader(); // Esconder loader mesmo se falhar
+                    }
+                }
+            }, 3000);
+        }
+
+        // Função loadBaseModel removida - agora usa showObject() que gerencia todos os objetos corretamente
+
+        // Função para carregar arquivo .obj
+        function loadOBJModel(objPath, serviceIndex) {
+            return new Promise((resolve, reject) => {
+                if (!objLoader) {
+                    objLoader = new THREE.OBJLoader();
+                }
+
+                objLoader.load(
+                    objPath,
+                    // onLoad
+                    (object) => {
+                        // Calcular bounding box para centralizar e escalar corretamente
+                        const box = new THREE.Box3().setFromObject(object);
+                        const center = box.getCenter(new THREE.Vector3());
+                        const size = box.getSize(new THREE.Vector3());
+                        const maxDim = Math.max(size.x, size.y, size.z);
+
+                        // Escala baseada no tipo de modelo E no tamanho da tela
+                        const isMobile = window.innerWidth <= 768;
+                        let scale;
+                        if (objPath.includes('base')) {
+                            scale = isMobile ? 5.0 / maxDim : 8.0 / maxDim; // Menor em mobile
+                        } else if (objPath.includes('escova')) {
+                            scale = isMobile ? 4.0 / maxDim : 6.0 / maxDim; // Escova
+                        } else if (objPath.includes('fio_dental')) {
+                            scale = isMobile ? 2.5 / maxDim : 4.0 / maxDim; // Fio dental menor
+                        } else {
+                            scale = isMobile ? 4.0 / maxDim : 6.0 / maxDim; // Padrão
+                        }
+
+                        // Centralizar o modelo
+                        object.position.sub(center);
+                        object.scale.setScalar(scale);
+                        
+                        // Verificar tipo de modelo
+                        const isBaseObj = objPath.includes('base');
+                        const isEscova = objPath.includes('escova');
+                        const isFioDental = objPath.includes('fio_dental');
+
+                        // Aplicar material futurista a todos os meshes
+                        let meshIndex = 0;
+                        object.traverse((child) => {
+                            if (child.isMesh) {
+                                // Cores diferentes para cada modelo
+                                let color = 0xf8f8f5; // Branco padrão (dentes)
+                                let emissiveColor = 0x00d4ff;
+
+                                if (isEscova) {
+                                    color = 0x00b4d8; // Azul para escova
+                                    emissiveColor = 0x00d4ff;
+                                } else if (isFioDental) {
+                                    color = 0x90e0ef; // Azul claro para fio dental
+                                    emissiveColor = 0x00d4ff;
+                                }
+
+                                // Material otimizado para performance
+                                child.material = new THREE.MeshStandardMaterial({
+                                    color: color,
+                                    metalness: 0.2,
+                                    roughness: 0.4,
+                                    emissive: emissiveColor,
+                                    emissiveIntensity: 0.1
+                                });
+                                child.castShadow = false;
+                                child.receiveShadow = false;
+                                
+                                // Se for base.obj, marcar meshes para inspeção
+                                if (isBaseObj) {
+                                    child.userData.isToothPart = true;
+                                    child.userData.originalMaterial = child.material.clone();
+                                    child.userData.meshIndex = meshIndex++;
+                                    
+                                    // Calcular posição relativa para identificar dente
+                                    const meshBox = new THREE.Box3().setFromObject(child);
+                                    const meshCenter = meshBox.getCenter(new THREE.Vector3());
+                                    child.userData.worldPosition = meshCenter;
+                                }
+                            }
+                        });
+
+                        // Marcar tipo de modelo
+                        if (isBaseObj) {
+                            object.userData.isBaseModel = true;
+                            object.userData.selectedPart = null;
+                        }
+
+                        resolve(object);
+                    },
+                    // onProgress
+                    (xhr) => {
+                        if (xhr.lengthComputable) {
+                            const percentComplete = (xhr.loaded / xhr.total) * 100;
+                            console.log('Carregando modelo .obj: ' + Math.round(percentComplete) + '%');
+                        }
+                    },
+                    // onError
+                    (error) => {
+                        console.error('Erro ao carregar modelo .obj:', error);
+                        console.error('Caminho tentado:', objPath);
+                        // Fallback para objeto procedural
+                        const fallbackObject = createTooth();
+                        resolve(fallbackObject);
+                    }
+                );
+            });
+        }
+
+        // ============================================
+        // SISTEMA DE MODELOS PRÉ-CARREGADOS
+        // Todos os 3 modelos são carregados uma vez
+        // e alternamos visibilidade com blur na transição
+        // ============================================
+        const loadedModels = {}; // Cache dos modelos carregados
+        let currentVisibleModel = null;
+        let isTransitioning = false;
+
+        // Pré-carregar todos os modelos no início
+        async function preloadAllModels() {
+            console.log('🔄 Pré-carregando todos os modelos...');
+
+            try {
+                // Carregar apenas o primeiro modelo para começar rápido
+                const firstService = services[0];
+                const firstObjPath = firstService.objPath || 'base.obj';
+
+                try {
+                    const firstObject = await loadOBJModel(firstObjPath, 0);
+                    if (firstObject) {
+                        firstObject.visible = true; // Primeiro visível
+                        firstObject.userData.objPath = firstObjPath;
+                        teethGroup.add(firstObject);
+                        loadedModels[firstObjPath] = firstObject;
+                        currentVisibleModel = firstObject;
+                        baseModel = firstObject;
+                        console.log('✅', firstObjPath, 'carregado!');
+                    }
+                } catch (error) {
+                    console.error('Erro ao carregar primeiro modelo:', error);
+                    // Criar fallback
+                    const fallback = createTooth();
+                    fallback.visible = true;
+                    teethGroup.add(fallback);
+                    currentVisibleModel = fallback;
+                    baseModel = fallback;
+                }
+
+                // Inicializar informações do primeiro serviço
+                updateService(0);
+                updateDetailPanel(services[0]);
+
+                console.log('✅ Primeiro modelo carregado!');
+
+                // Carregar os outros modelos em background (sem bloquear)
+                setTimeout(async () => {
+                    for (let i = 1; i < services.length; i++) {
+                        const service = services[i];
+                        const objPath = service.objPath || 'base.obj';
+
+                        if (!loadedModels[objPath]) {
+                            try {
+                                const object = await loadOBJModel(objPath, i);
+                                if (object) {
+                                    object.visible = false;
+                                    object.userData.objPath = objPath;
+                                    teethGroup.add(object);
+                                    loadedModels[objPath] = object;
+                                    console.log('✅', objPath, 'pré-carregado em background!');
+                                }
+                            } catch (error) {
+                                console.error('Erro ao pré-carregar', objPath, ':', error);
+                            }
+                        }
+                    }
+                }, 1000);
+
+            } catch (error) {
+                console.error('Erro geral no preloadAllModels:', error);
+            }
+        }
+
+        // Mostrar modelo por índice (com transição de blur)
+        function showModelByIndex(serviceIndex) {
+            const service = services[serviceIndex];
+            if (!service) return;
+
+            const objPath = service.objPath || 'base.obj';
+            const newModel = loadedModels[objPath];
+
+            if (!newModel) {
+                console.error('Modelo não encontrado no cache:', objPath);
+                return;
+            }
+
+            // Se é o mesmo modelo, não fazer nada
+            if (currentVisibleModel === newModel) return;
+
+            // Transição com blur
+            const canvasContainer = document.getElementById('canvas-container');
+
+            if (currentVisibleModel && canvasContainer) {
+                // Ativar blur para transição
+                isTransitioning = true;
+                canvasContainer.classList.add('transitioning');
+
+                // Após o blur, trocar o modelo
+                setTimeout(() => {
+                    // Esconder modelo anterior
+                    if (currentVisibleModel) {
+                        currentVisibleModel.visible = false;
+                    }
+
+                    // Mostrar novo modelo
+                    newModel.visible = true;
+                    newModel.position.set(0, 0, 0);
+                    newModel.rotation.set(0, 0, 0);
+                    currentVisibleModel = newModel;
+                    baseModel = newModel;
+                    currentObjectIndex = serviceIndex;
+
+                    // Remover blur
+                    setTimeout(() => {
+                        canvasContainer.classList.remove('transitioning');
+                        isTransitioning = false;
+                    }, 100);
+                }, 300); // Tempo do blur
+            } else {
+                // Primeira vez, mostrar direto
+                newModel.visible = true;
+                currentVisibleModel = newModel;
+                baseModel = newModel;
+                currentObjectIndex = serviceIndex;
+            }
+        }
+
+        // Função antiga mantida para compatibilidade
+        async function showObject(serviceIndex) {
+            showModelByIndex(serviceIndex);
+        }
+
+
+        function createToothbrush() {
+            const group = new THREE.Group();
+
+            // Material da escova
+            const handleMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0x0066cc,
+                metalness: 0.1,
+                roughness: 0.4
+            });
+
+            const bristleMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0xffffff,
+                metalness: 0.0,
+                roughness: 0.6
+            });
+
+            // Cabo da escova
+            const handleGeometry = new THREE.BoxGeometry(0.3, 1.2, 0.3);
+            const handle = new THREE.Mesh(handleGeometry, handleMaterial);
+            handle.position.y = -0.4;
+            group.add(handle);
+
+            // Cabeça da escova
+            const headGeometry = new THREE.BoxGeometry(0.5, 0.3, 0.2);
+            const head = new THREE.Mesh(headGeometry, handleMaterial);
+            head.position.y = 0.2;
+            group.add(head);
+
+            // Cerdas
+            const bristleCount = 20;
+            for (let i = 0; i < bristleCount; i++) {
+                const bristleGeometry = new THREE.CylinderGeometry(0.02, 0.02, 0.15, 6);
+                const bristle = new THREE.Mesh(bristleGeometry, bristleMaterial);
+                const x = (i % 5) * 0.1 - 0.2;
+                const z = Math.floor(i / 5) * 0.05 - 0.05;
+                bristle.position.set(x, 0.35, z);
+                group.add(bristle);
+            }
+
+            // Highlight
+            const highlightGeometry = new THREE.BoxGeometry(0.6, 1.6, 0.4);
+            const highlightMaterial = new THREE.MeshBasicMaterial({
+                color: 0x00d4ff,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.3,
+                visible: true
+            });
+            const highlight = new THREE.Mesh(highlightGeometry, highlightMaterial);
+            highlight.position.y = 0;
+            group.add(highlight);
+            group.userData.highlightMesh = highlight;
+
+            // Glow
+            const glowGeometry = new THREE.BoxGeometry(0.7, 1.8, 0.5);
+            const glowMaterial = new THREE.MeshBasicMaterial({
+                color: 0x00d4ff,
+                transparent: true,
+                opacity: 0.2,
+                side: THREE.BackSide
+            });
+            const glow = new THREE.Mesh(glowGeometry, glowMaterial);
+            glow.position.y = 0;
+            group.add(glow);
+            group.userData.glowMesh = glow;
+
+            return group;
+        }
+
+        function createTooth() {
+            const group = new THREE.Group();
+
+            const toothMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0xf8f8f5,
+                metalness: 0.1,
+                roughness: 0.3,
+                clearcoat: 0.8
+            });
+
+            // Forma de dente melhorada
+            const shape = new THREE.Shape();
+            const width = 0.6;
+            const height = 1.0;
+            
+            shape.moveTo(-width/2, -height/2);
+            shape.lineTo(-width/3, height/4);
+            shape.quadraticCurveTo(0, height/2, width/3, height/4);
+            shape.lineTo(width/2, -height/2);
+            shape.quadraticCurveTo(0, -height/2 - 0.1, -width/2, -height/2);
+            shape.closePath();
+
+            const geometry = new THREE.ExtrudeGeometry(shape, {
+                depth: 0.5,
+                bevelEnabled: true,
+                bevelThickness: 0.05,
+                bevelSize: 0.05,
+                bevelSegments: 8,
+                curveSegments: 16
+            });
+
+            const tooth = new THREE.Mesh(geometry, toothMaterial);
+            group.add(tooth);
+
+            // Highlight
+            const highlight = new THREE.Mesh(geometry.clone(), new THREE.MeshBasicMaterial({
+                color: 0x00d4ff,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.3,
+                visible: true
+            }));
+            highlight.scale.setScalar(1.02);
+            group.add(highlight);
+            group.userData.highlightMesh = highlight;
+
+            // Glow
+            const glow = new THREE.Mesh(geometry.clone(), new THREE.MeshBasicMaterial({
+                color: 0x00d4ff,
+                transparent: true,
+                opacity: 0.2,
+                side: THREE.BackSide
+            }));
+            glow.scale.setScalar(1.2);
+            group.add(glow);
+            group.userData.glowMesh = glow;
+
+            return group;
+        }
+
+        function createToothpaste() {
+            const group = new THREE.Group();
+
+            const tubeMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0xffffff,
+                metalness: 0.2,
+                roughness: 0.3
+            });
+
+            const capMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0x0066cc,
+                metalness: 0.3,
+                roughness: 0.4
+            });
+
+            // Corpo do tubo
+            const tubeGeometry = new THREE.CylinderGeometry(0.3, 0.35, 1.2, 32);
+            const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
+            tube.rotation.z = Math.PI / 2;
+            tube.position.x = -0.3;
+            group.add(tube);
+
+            // Tampa
+            const capGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.2, 16);
+            const cap = new THREE.Mesh(capGeometry, capMaterial);
+            cap.rotation.z = Math.PI / 2;
+            cap.position.x = 0.3;
+            group.add(cap);
+
+            // Highlight
+            const highlightGeometry = new THREE.BoxGeometry(1.5, 0.8, 0.8);
+            const highlight = new THREE.Mesh(highlightGeometry, new THREE.MeshBasicMaterial({
+                color: 0x00d4ff,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.3,
+                visible: true
+            }));
+            group.add(highlight);
+            group.userData.highlightMesh = highlight;
+
+            // Glow
+            const glow = new THREE.Mesh(highlightGeometry.clone(), new THREE.MeshBasicMaterial({
+                color: 0x00d4ff,
+                transparent: true,
+                opacity: 0.2,
+                side: THREE.BackSide
+            }));
+            group.add(glow);
+            group.userData.glowMesh = glow;
+
+            return group;
+        }
+
+        function createDentalFloss() {
+            const group = new THREE.Group();
+
+            const containerMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0x333333,
+                metalness: 0.5,
+                roughness: 0.3
+            });
+
+            const flossMaterial = new THREE.MeshBasicMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.9
+            });
+
+            // Container
+            const containerGeometry = new THREE.BoxGeometry(0.4, 0.6, 0.4);
+            const container = new THREE.Mesh(containerGeometry, containerMaterial);
+            group.add(container);
+
+            // Fio dental
+            const flossGeometry = new THREE.CylinderGeometry(0.01, 0.01, 2, 8);
+            const floss = new THREE.Mesh(flossGeometry, flossMaterial);
+            floss.rotation.z = Math.PI / 2;
+            floss.position.y = 0.5;
+            group.add(floss);
+
+            // Highlight
+            const highlightGeometry = new THREE.BoxGeometry(0.6, 2.5, 0.6);
+            const highlight = new THREE.Mesh(highlightGeometry, new THREE.MeshBasicMaterial({
+                color: 0x00d4ff,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.3,
+                visible: true
+            }));
+            highlight.position.y = 0.5;
+            group.add(highlight);
+            group.userData.highlightMesh = highlight;
+
+            // Glow
+            const glow = new THREE.Mesh(highlightGeometry.clone(), new THREE.MeshBasicMaterial({
+                color: 0x00d4ff,
+                transparent: true,
+                opacity: 0.2,
+                side: THREE.BackSide
+            }));
+            glow.position.y = 0.5;
+            group.add(glow);
+            group.userData.glowMesh = glow;
+
+            return group;
+        }
+
+        function createSingleTooth(type, material, accentMaterial, wireMaterial, glowMaterial) {
+            const group = new THREE.Group();
+
+            let geometry;
+
+            switch(type) {
+                case 'incisor':
+                    geometry = createIncisorGeometry();
+                    break;
+                case 'canine':
+                    geometry = createCanineGeometry();
+                    break;
+                case 'premolar':
+                    geometry = createPremolarGeometry();
+                    break;
+                case 'molar':
+                    geometry = createMolarGeometry();
+                    break;
+                default:
+                    geometry = createIncisorGeometry();
+            }
+
+            // Dente principal - sólido e realista
+            const tooth = new THREE.Mesh(geometry, material);
+            tooth.castShadow = true;
+            tooth.receiveShadow = true;
+            group.add(tooth);
+
+            // Highlight wireframe (invisível por padrão, aparece quando selecionado)
+            const wireframe = new THREE.Mesh(geometry.clone(), wireMaterial);
+            wireframe.scale.setScalar(1.02);
+            wireframe.visible = false;
+            group.add(wireframe);
+            group.userData.highlightMesh = wireframe;
+
+            // Glow exterior (invisível por padrão)
+            const glow = new THREE.Mesh(geometry.clone(), glowMaterial);
+            glow.scale.setScalar(1.2);
+            glow.visible = false;
+            group.add(glow);
+            group.userData.glowMesh = glow;
+
+            // Remover elementos decorativos - manter apenas o dente
+
+            return group;
+        }
+
+        function createIncisorGeometry() {
+            // Forma mais realista de incisivo - retangular com bordas arredondadas
+            const shape = new THREE.Shape();
+            const width = 0.5;
+            const height = 0.9;
+            const radius = 0.1;
+            
+            shape.moveTo(-width/2 + radius, -height/2);
+            shape.lineTo(width/2 - radius, -height/2);
+            shape.quadraticCurveTo(width/2, -height/2, width/2, -height/2 + radius);
+            shape.lineTo(width/2, height/2 - radius);
+            shape.quadraticCurveTo(width/2, height/2, width/2 - radius, height/2);
+            shape.lineTo(-width/2 + radius, height/2);
+            shape.quadraticCurveTo(-width/2, height/2, -width/2, height/2 - radius);
+            shape.lineTo(-width/2, -height/2 + radius);
+            shape.quadraticCurveTo(-width/2, -height/2, -width/2 + radius, -height/2);
+            shape.closePath();
+
+            return new THREE.ExtrudeGeometry(shape, {
+                depth: 0.4,
+                bevelEnabled: true,
+                bevelThickness: 0.05,
+                bevelSize: 0.05,
+                bevelSegments: 8,
+                curveSegments: 16
+            });
+        }
+
+        function createCanineGeometry() {
+            // Forma de canino - pontiagudo
+            const shape = new THREE.Shape();
+            const width = 0.45;
+            const height = 1.0;
+            
+            shape.moveTo(-width/2, -height/2);
+            shape.lineTo(-width/3, height/3);
+            shape.lineTo(0, height/2);
+            shape.lineTo(width/3, height/3);
+            shape.lineTo(width/2, -height/2);
+            shape.quadraticCurveTo(0, -height/2 - 0.1, -width/2, -height/2);
+            shape.closePath();
+
+            return new THREE.ExtrudeGeometry(shape, {
+                depth: 0.4,
+                bevelEnabled: true,
+                bevelThickness: 0.05,
+                bevelSize: 0.05,
+                bevelSegments: 8,
+                curveSegments: 16
+            });
+        }
+
+        function createPremolarGeometry() {
+            // Premolar - formato mais arredondado
+            const geometry = new THREE.CylinderGeometry(0.45, 0.5, 0.85, 8, 1);
+            // Adicionar leve cúspide no topo
+            const positions = geometry.attributes.position.array;
+            for (let i = 0; i < positions.length; i += 3) {
+                if (positions[i + 1] > 0.3) {
+                    positions[i + 1] += 0.08;
+                }
+            }
+            geometry.attributes.position.needsUpdate = true;
+            geometry.computeVertexNormals();
+            return geometry;
+        }
+
+        function createMolarGeometry() {
+            // Molar - formato mais quadrado com cúspides
+            const geometry = new THREE.BoxGeometry(0.95, 0.75, 0.85, 3, 3, 3);
+
+            // Modificar vértices para criar cúspides mais realistas
+            const positions = geometry.attributes.position.array;
+            for (let i = 0; i < positions.length; i += 3) {
+                const y = positions[i + 1];
+                const x = positions[i];
+                const z = positions[i + 2];
+                
+                if (y > 0.25) {
+                    // Criar 4 cúspides principais nos cantos
+                    const distFromCorner = Math.sqrt(Math.pow(Math.abs(x) - 0.3, 2) + Math.pow(Math.abs(z) - 0.3, 2));
+                    if (distFromCorner < 0.2) {
+                        positions[i + 1] += 0.12;
+                    }
+                    // Arredondar bordas
+                    positions[i] *= 0.9;
+                    positions[i + 2] *= 0.9;
+                }
+            }
+
+            geometry.attributes.position.needsUpdate = true;
+            geometry.computeVertexNormals();
+
+            return geometry;
+        }
+
+        // Função removida - elementos decorativos não são mais necessários
+        function addTechElements_DEPRECATED() {
+            // Linhas conectoras com gradiente - neon tech
+            const lineMaterial = new THREE.LineBasicMaterial({
+                color: 0x00d4ff,
+                transparent: true,
+                opacity: 0.4,
+                emissive: 0x00d4ff,
+                emissiveIntensity: 0.5
+            });
+
+            const lineMaterialDark = new THREE.LineBasicMaterial({
+                color: 0xa855f7,
+                transparent: true,
+                opacity: 0.3,
+                emissive: 0xa855f7,
+                emissiveIntensity: 0.4
+            });
+
+            // Grid de linhas tech horizontais
+            for (let i = 0; i < 12; i++) {
+                const points = [];
+                const startX = (Math.random() - 0.5) * 20;
+                const startY = (Math.random() - 0.5) * 12;
+                const startZ = (Math.random() - 0.5) * 12;
+                const length = 3 + Math.random() * 6;
+
+                points.push(new THREE.Vector3(startX, startY, startZ));
+                points.push(new THREE.Vector3(startX + length, startY, startZ));
+
+                const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+                const line = new THREE.Line(lineGeometry, Math.random() > 0.5 ? lineMaterial : lineMaterialDark);
+                line.userData.floatOffset = Math.random() * Math.PI * 2;
+                teethGroup.add(line);
+            }
+
+            // Linhas verticais
+            for (let i = 0; i < 6; i++) {
+                const points = [];
+                const x = (Math.random() - 0.5) * 18;
+                const z = (Math.random() - 0.5) * 10;
+                const startY = (Math.random() - 0.5) * 8;
+                const length = 2 + Math.random() * 4;
+
+                points.push(new THREE.Vector3(x, startY, z));
+                points.push(new THREE.Vector3(x, startY + length, z));
+
+                const lineGeometry = new THREE.BufferGeometry().setFromPoints(points);
+                const line = new THREE.Line(lineGeometry, lineMaterial);
+                teethGroup.add(line);
+            }
+
+            // Esferas flutuantes com glow - neon tech
+            const sphereGeometry = new THREE.SphereGeometry(0.03, 16, 16);
+            const sphereMaterialBlue = new THREE.MeshBasicMaterial({
+                color: 0x00d4ff,
+                transparent: true,
+                opacity: 1.0,
+                emissive: 0x00d4ff,
+                emissiveIntensity: 1.2
+            });
+            const sphereMaterialDark = new THREE.MeshBasicMaterial({
+                color: 0xa855f7,
+                transparent: true,
+                opacity: 0.9,
+                emissive: 0xa855f7,
+                emissiveIntensity: 1.0
+            });
+
+            for (let i = 0; i < 30; i++) {
+                const sphere = new THREE.Mesh(
+                    sphereGeometry,
+                    Math.random() > 0.7 ? sphereMaterialBlue.clone() : sphereMaterialDark.clone()
+                );
+                sphere.position.set(
+                    (Math.random() - 0.5) * 16,
+                    (Math.random() - 0.5) * 10,
+                    (Math.random() - 0.5) * 10
+                );
+                sphere.userData.floatOffset = Math.random() * Math.PI * 2;
+                sphere.userData.floatSpeed = 0.3 + Math.random() * 0.5;
+                sphere.userData.floatAmplitude = 0.5 + Math.random() * 0.5;
+                teethGroup.add(sphere);
+            }
+
+            // Cubos tech pequenos - neon
+            const cubeGeometry = new THREE.BoxGeometry(0.1, 0.1, 0.1);
+            const cubeMaterial = new THREE.MeshBasicMaterial({
+                color: 0x00d4ff,
+                transparent: true,
+                opacity: 0.8,
+                emissive: 0x00d4ff,
+                emissiveIntensity: 1.0
+            });
+
+            for (let i = 0; i < 15; i++) {
+                const cube = new THREE.Mesh(cubeGeometry, cubeMaterial.clone());
+                cube.position.set(
+                    (Math.random() - 0.5) * 14,
+                    (Math.random() - 0.5) * 9,
+                    (Math.random() - 0.5) * 9
+                );
+                cube.rotation.set(
+                    Math.random() * Math.PI,
+                    Math.random() * Math.PI,
+                    Math.random() * Math.PI
+                );
+                cube.userData.rotateSpeed = 0.5 + Math.random() * 0.5;
+                cube.userData.floatOffset = Math.random() * Math.PI * 2;
+                teethGroup.add(cube);
+            }
+
+            // Hexágonos tech
+            const hexShape = new THREE.Shape();
+            const hexSize = 0.15;
+            for (let i = 0; i < 6; i++) {
+                const angle = (i / 6) * Math.PI * 2 - Math.PI / 2;
+                const x = Math.cos(angle) * hexSize;
+                const y = Math.sin(angle) * hexSize;
+                if (i === 0) hexShape.moveTo(x, y);
+                else hexShape.lineTo(x, y);
+            }
+            hexShape.closePath();
+
+            const hexGeometry = new THREE.ShapeGeometry(hexShape);
+            const hexMaterial = new THREE.MeshBasicMaterial({
+                color: 0x00d4ff,
+                transparent: true,
+                opacity: 0.5,
+                side: THREE.DoubleSide,
+                emissive: 0x00d4ff,
+                emissiveIntensity: 0.6
+            });
+
+            for (let i = 0; i < 8; i++) {
+                const hex = new THREE.Mesh(hexGeometry, hexMaterial.clone());
+                hex.position.set(
+                    (Math.random() - 0.5) * 18,
+                    (Math.random() - 0.5) * 12,
+                    (Math.random() - 0.5) * 12
+                );
+                hex.rotation.set(
+                    Math.random() * Math.PI,
+                    Math.random() * Math.PI,
+                    0
+                );
+                hex.userData.rotateSpeed = 0.2 + Math.random() * 0.3;
+                hex.scale.setScalar(1 + Math.random() * 2);
+                teethGroup.add(hex);
+            }
+        }
+
+        // Função removida - elementos decorativos não são mais necessários
+        function addOrbitalRings_DEPRECATED() {
+            // Grande anel orbital ao redor de toda a cena
+            const orbitMaterial = new THREE.MeshBasicMaterial({
+                color: 0x1a1a1a,
+                transparent: true,
+                opacity: 0.15,
+                side: THREE.DoubleSide
+            });
+
+            const orbitMaterialBlue = new THREE.MeshBasicMaterial({
+                color: 0x00d4ff,
+                transparent: true,
+                opacity: 0.4,
+                side: THREE.DoubleSide,
+                emissive: 0x00d4ff,
+                emissiveIntensity: 0.5
+            });
+
+            // Anel grande horizontal
+            const bigRingGeometry = new THREE.TorusGeometry(7, 0.02, 16, 150);
+            const bigRing = new THREE.Mesh(bigRingGeometry, orbitMaterial);
+            bigRing.rotation.x = Math.PI / 2;
+            bigRing.userData.orbitRing = true;
+            teethGroup.add(bigRing);
+
+            // Anel médio diagonal
+            const medRingGeometry = new THREE.TorusGeometry(5.5, 0.015, 16, 120);
+            const medRing = new THREE.Mesh(medRingGeometry, orbitMaterialBlue);
+            medRing.rotation.x = Math.PI / 2.5;
+            medRing.rotation.y = Math.PI / 6;
+            medRing.userData.orbitRing = true;
+            medRing.userData.orbitSpeed = 0.3;
+            teethGroup.add(medRing);
+
+            // Anel menor
+            const smallRingGeometry = new THREE.TorusGeometry(4, 0.01, 16, 100);
+            const smallRing = new THREE.Mesh(smallRingGeometry, orbitMaterial.clone());
+            smallRing.material.opacity = 0.1;
+            smallRing.rotation.x = Math.PI / 1.8;
+            smallRing.rotation.z = -Math.PI / 4;
+            smallRing.userData.orbitRing = true;
+            smallRing.userData.orbitSpeed = -0.2;
+            teethGroup.add(smallRing);
+
+            // Pontos orbitando
+            const orbitDotGeometry = new THREE.SphereGeometry(0.06, 16, 16);
+            const orbitDotMaterial = new THREE.MeshBasicMaterial({
+                color: 0x00d4ff,
+                transparent: true,
+                opacity: 1.0,
+                emissive: 0x00d4ff,
+                emissiveIntensity: 1.5
+            });
+
+            for (let i = 0; i < 5; i++) {
+                const dot = new THREE.Mesh(orbitDotGeometry, orbitDotMaterial);
+                const angle = (i / 5) * Math.PI * 2;
+                dot.position.set(
+                    Math.cos(angle) * 7,
+                    0,
+                    Math.sin(angle) * 7
+                );
+                dot.userData.orbitDot = true;
+                dot.userData.orbitAngle = angle;
+                dot.userData.orbitRadius = 7;
+                dot.userData.orbitSpeed = 0.15;
+                teethGroup.add(dot);
+            }
+        }
+
+        // Função removida - usando a versão mais completa abaixo
+
+        // Informações sobre diferentes partes dos dentes
+        const toothPartsInfo = [
+            { name: "Incisivo Central Superior", info: "Dente frontal superior. Responsável pelo corte inicial dos alimentos. Primeiro dente permanente a nascer." },
+            { name: "Incisivo Lateral Superior", info: "Dente ao lado do incisivo central. Ajuda no corte e na estética do sorriso. Fundamental para a harmonia dental." },
+            { name: "Canino Superior", info: "Dente pontiagudo mais forte. Usado para rasgar alimentos. Também conhecido como 'dente de cão'." },
+            { name: "Pré-molar Superior", info: "Dente com duas cúspides. Ajuda na mastigação e trituração inicial dos alimentos." },
+            { name: "Molar Superior", info: "Dente grande com múltiplas cúspides. Principal responsável pela mastigação eficiente dos alimentos." },
+            { name: "Incisivo Central Inferior", info: "Dente frontal inferior. Trabalha em conjunto com os superiores para cortar alimentos." },
+            { name: "Incisivo Lateral Inferior", info: "Dente lateral inferior. Complementa a função dos incisivos centrais." },
+            { name: "Canino Inferior", info: "Canino inferior. Funciona em conjunto com o canino superior para rasgar alimentos." },
+            { name: "Pré-molar Inferior", info: "Pré-molar inferior. Importante na trituração dos alimentos antes da mastigação final." },
+            { name: "Molar Inferior", info: "Molar inferior. Dente mais forte da arcada, essencial para mastigação eficiente." }
+        ];
+
+        function inspectToothPart(mesh, hitPoint) {
+            console.log('🔍 inspectToothPart chamado:', {
+                hasCurrentObject: !!currentObject,
+                isBaseModel: currentObject?.userData?.isBaseModel,
+                mesh: mesh
+            });
+            
+            if (!currentObject || !currentObject.userData.isBaseModel) {
+                console.warn('⚠️ Não é modelo base ou currentObject não existe');
+                return;
+            }
+            
+            if (!mesh || !mesh.isMesh) {
+                console.warn('⚠️ Mesh inválido para inspeção');
+                return;
+            }
+
+            // Remover highlight anterior
+            if (currentObject.userData.selectedPart) {
+                const prevMesh = currentObject.userData.selectedPart;
+                if (prevMesh.userData.originalMaterial) {
+                    prevMesh.material = prevMesh.userData.originalMaterial.clone();
+                }
+            }
+
+            // Destacar parte clicada com material neon
+            mesh.userData.originalMaterial = mesh.material.clone();
+            mesh.material = new THREE.MeshPhysicalMaterial({
+                color: 0x00d4ff,
+                metalness: 0.5,
+                roughness: 0.1,
+                emissive: 0x00d4ff,
+                emissiveIntensity: 0.8,
+                clearcoat: 1.0,
+                clearcoatRoughness: 0.1
+            });
+            currentObject.userData.selectedPart = mesh;
+
+            // Determinar qual dente foi clicado baseado na posição do mesh
+            const worldPosition = mesh.userData.worldPosition || new THREE.Vector3();
+            mesh.getWorldPosition(worldPosition);
+            
+            // Calcular índice do dente baseado na posição X e Y
+            // Posição X: -1 (esquerda) a 1 (direita)
+            // Posição Y: negativa (inferior) a positiva (superior)
+            const normalizedX = (worldPosition.x + 1) / 2; // 0 a 1
+            const isUpper = worldPosition.y > 0;
+            
+            // Dividir em 5 dentes por arcada (simplificado)
+            const toothInArch = Math.min(Math.floor(normalizedX * 5), 4);
+            
+            // Mapear para índice do array (0-4 superior, 5-9 inferior)
+            let toothIndex;
+            if (isUpper) {
+                // Superior: Incisivo Central, Lateral, Canino, Pré-molar, Molar
+                toothIndex = toothInArch;
+            } else {
+                // Inferior: mesmo padrão
+                toothIndex = 5 + toothInArch;
+            }
+            
+            // Garantir que está no range
+            toothIndex = Math.max(0, Math.min(toothIndex, toothPartsInfo.length - 1));
+            const toothInfo = toothPartsInfo[toothIndex] || toothPartsInfo[0];
+
+            // Atualizar painel de informações
+            updateToothInspection(toothInfo, hitPoint);
+        }
+
+        function updateToothInspection(toothInfo, position) {
+            const detailPanel = document.getElementById('detailPanel');
+            const detailTitle = document.getElementById('detailTitle');
+            const detailDescription = document.getElementById('detailDescription');
+            const detailFeatures = document.querySelector('.detail-features');
+            const detailNumber = document.querySelector('.detail-number');
+
+            if (!detailPanel || !detailTitle || !detailDescription || !detailFeatures) return;
+
+            // Fade out
+            detailPanel.style.opacity = '0';
+            detailPanel.style.transform = 'translateY(30px)';
+
+            setTimeout(() => {
+                if (detailNumber) detailNumber.textContent = '01';
+                detailTitle.textContent = toothInfo.name;
+                detailDescription.textContent = toothInfo.info;
+
+                // Atualizar features
+                const toothType = toothInfo.name.split(' ')[0];
+                const position = toothInfo.name.includes('Superior') ? 'Superior' : 'Inferior';
+                const functionText = toothInfo.info.split('.')[0];
+
+                detailFeatures.innerHTML = `
+                    <div class="feature-item">
+                        <span class="feature-label">Tipo</span>
+                        <span class="feature-value">${toothType}</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-label">Posição</span>
+                        <span class="feature-value">${position}</span>
+                    </div>
+                    <div class="feature-item">
+                        <span class="feature-label">Função</span>
+                        <span class="feature-value">${functionText}</span>
+                    </div>
+                `;
+
+                // Fade in - apenas em desktop
+                if (window.innerWidth > 768) {
+                    detailPanel.style.opacity = '1';
+                    detailPanel.style.transform = 'translateY(0)';
+                    detailPanel.classList.add('visible');
+                }
+            }, 300);
+        }
+
+        function animateBackground(scrollY) {
+            const windowHeight = window.innerHeight;
+            const scrollPercent = scrollY / windowHeight;
+
+            // Movimento parallax dos gradientes - MUITO mais visível
+            const bgGradient1 = document.getElementById('bgGradient1');
+            const bgGradient2 = document.getElementById('bgGradient2');
+            const bgGradient3 = document.getElementById('bgGradient3');
+            const bgGrid = document.getElementById('bgGrid');
+
+            // Velocidades MUITO aumentadas para movimento BEM visível
+            if (bgGradient1) {
+                const speed1 = scrollY * 2.0;
+                const scale1 = 1 + scrollPercent * 0.5;
+                const opacity1 = Math.max(0.1, 0.25 - scrollPercent * 0.1);
+                bgGradient1.style.transform = `translate(${speed1 * 0.6}px, ${speed1 * 1.0}px) scale(${scale1})`;
+                bgGradient1.style.opacity = opacity1;
+            }
+
+            if (bgGradient2) {
+                const speed2 = scrollY * 2.5;
+                const scale2 = 1 + scrollPercent * 0.3;
+                const opacity2 = Math.max(0.1, 0.2 - scrollPercent * 0.05);
+                bgGradient2.style.transform = `translate(${-speed2 * 0.7}px, ${-speed2 * 0.9}px) scale(${scale2})`;
+                bgGradient2.style.opacity = opacity2;
+            }
+
+            if (bgGradient3) {
+                const speed3 = scrollY * 1.5;
+                const pulse = 1 + Math.sin(scrollY * 0.01) * 0.1;
+                bgGradient3.style.transform = `translate(calc(-50% + ${speed3 * 0.5}px), calc(-50% + ${speed3 * 1.8}px)) scale(${pulse})`;
+            }
+
+            // Grid se move MUITO mais rápido - movimento MUITO evidente
+            if (bgGrid) {
+                const gridSpeed = scrollY * 3.0;
+                const gridOpacity = Math.max(0.3, 0.8 - scrollPercent * 0.2);
+                bgGrid.style.transform = `translateY(${-gridSpeed}px)`;
+                bgGrid.style.opacity = gridOpacity;
+            }
+
+            // Mudar cor de fundo gradualmente baseado no scroll
+            const scrollSection = Math.floor(scrollPercent);
+            const hue1 = 190 + scrollSection * 20; // Vai de ciano para roxo
+            const hue2 = 270 + scrollSection * 15;
+
+            // Atualizar variáveis CSS para efeito de mudança de cor
+            document.documentElement.style.setProperty('--scroll-hue', hue1);
+
+            // Efeito de "pulso" nas linhas de fundo
+            const bgLines = document.querySelectorAll('.bg-line');
+            bgLines.forEach((line, index) => {
+                const delay = index * 0.2;
+                const lineOpacity = 0.1 + Math.sin((scrollY * 0.02) + delay) * 0.1;
+                line.style.opacity = lineOpacity;
+            });
+
+            // Mover partículas 3D baseado no scroll
+            if (particles) {
+                particles.rotation.y = scrollY * 0.0005;
+                particles.rotation.x = scrollY * 0.0003;
+                particles.position.y = -scrollY * 0.003;
+            }
+
+            // ============================================
+            // ANIMAÇÃO DO MODELO 3D COM SCROLL
+            // Modelo atual centralizado com rotação automática
+            // ============================================
+            if (currentVisibleModel && !isTransitioning) {
+                // Modelo sempre centralizado
+                currentVisibleModel.position.x += (0 - currentVisibleModel.position.x) * 0.1;
+                currentVisibleModel.position.y += (0 - currentVisibleModel.position.y) * 0.1;
+                currentVisibleModel.position.z += (0 - currentVisibleModel.position.z) * 0.1;
+
+                // Rotação Y contínua - sempre girando (a menos que esteja arrastando)
+                if (!isModelDragging) {
+                    currentVisibleModel.rotation.y += 0.005; // Velocidade de rotação
+                }
+
+                // Aplicar inércia após soltar o arrasto
+                if (!isModelDragging && modelRotationVelocity.x !== 0) {
+                    modelRotationVelocity.x *= 0.95;
+                    modelRotationVelocity.y *= 0.95;
+                    currentVisibleModel.rotation.x += modelRotationVelocity.x;
+                    currentVisibleModel.rotation.x = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, currentVisibleModel.rotation.x));
+
+                    // Parar inércia quando muito pequena
+                    if (Math.abs(modelRotationVelocity.x) < 0.0001) {
+                        modelRotationVelocity.x = 0;
+                        modelRotationVelocity.y = 0;
+                    }
+                }
+
+                // Garantir opacidade total
+                currentVisibleModel.traverse((child) => {
+                    if (child.isMesh && child.material) {
+                        child.material.transparent = false;
+                        child.material.opacity = 1;
+                    }
+                });
+            }
+        }
+
+        // ============================================
+        // PARTICLES
+        // ============================================
+
+        function createParticles() {
+            const count = 400; // Reduzido para melhor performance
+            const positions = new Float32Array(count * 3);
+            const sizes = new Float32Array(count);
+            const colors = new Float32Array(count * 3);
+
+            for (let i = 0; i < count; i++) {
+                // Distribuir partículas em formato esférico
+                const radius = 20 + Math.random() * 30;
+                const theta = Math.random() * Math.PI * 2;
+                const phi = Math.random() * Math.PI;
+
+                positions[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
+                positions[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
+                positions[i * 3 + 2] = radius * Math.cos(phi);
+                sizes[i] = Math.random() * 0.03 + 0.01;
+
+                // Cores variando entre ciano e roxo
+                const colorChoice = Math.random();
+                if (colorChoice < 0.6) {
+                    // Ciano
+                    colors[i * 3] = 0;
+                    colors[i * 3 + 1] = 0.83;
+                    colors[i * 3 + 2] = 1;
+                } else if (colorChoice < 0.85) {
+                    // Roxo
+                    colors[i * 3] = 0.66;
+                    colors[i * 3 + 1] = 0.33;
+                    colors[i * 3 + 2] = 0.97;
+                } else {
+                    // Branco
+                    colors[i * 3] = 1;
+                    colors[i * 3 + 1] = 1;
+                    colors[i * 3 + 2] = 1;
+                }
+            }
+
+            const geometry = new THREE.BufferGeometry();
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+            geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            const material = new THREE.PointsMaterial({
+                size: 0.04,
+                transparent: true,
+                opacity: 0.7,
+                sizeAttenuation: true,
+                vertexColors: true,
+                blending: THREE.AdditiveBlending
+            });
+
+            particles = new THREE.Points(geometry, material);
+            particles.userData.originalPositions = positions.slice(); // Guardar posições originais
+            scene.add(particles);
+        }
+
+        // ============================================
+        // CURSOR
+        // ============================================
+
+        function initCursor() {
+            const cursor = document.getElementById('cursor');
+            let cursorX = 0, cursorY = 0;
+            let targetX = 0, targetY = 0;
+
+            document.addEventListener('mousemove', (e) => {
+                targetX = e.clientX;
+                targetY = e.clientY;
+            });
+
+            function animateCursor() {
+                cursorX += (targetX - cursorX) * 0.15;
+                cursorY += (targetY - cursorY) * 0.15;
+
+                cursor.style.left = cursorX + 'px';
+                cursor.style.top = cursorY + 'px';
+
+                requestAnimationFrame(animateCursor);
+            }
+            animateCursor();
+
+            // Hover effects
+            const hoverElements = document.querySelectorAll('a, button, .service-item, .section-dot');
+            hoverElements.forEach(el => {
+                el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+                el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+            });
+
+            // Clique nos dots de seção para navegação
+            const sectionDots = document.querySelectorAll('.section-dot');
+            sectionDots.forEach(dot => {
+                dot.addEventListener('click', (e) => {
+                    const sectionIndex = parseInt(dot.dataset.section);
+                    const windowHeight = window.innerHeight;
+                    const targetScroll = sectionIndex * windowHeight;
+
+                    // Scroll suave para a seção
+                    window.scrollTo({
+                        top: targetScroll,
+                        behavior: 'smooth'
+                    });
+
+                    // Criar efeito visual de pulso no dot
+                    dot.style.transform = 'scale(2)';
+                    setTimeout(() => {
+                        dot.style.transform = '';
+                    }, 300);
+                });
+            });
+        }
+
+        // ============================================
+        // EVENTS
+        // ============================================
+
+        function onResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function onMouseMove(e) {
+            mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+            mouseY = (e.clientY / window.innerHeight) * 2 - 1;
+        }
+
+        function onScroll() {
+            const scrollY = window.scrollY;
+            const windowHeight = window.innerHeight;
+            const totalHeight = document.documentElement.scrollHeight;
+            const maxScroll = totalHeight - windowHeight;
+
+            // Calcular velocidade do scroll
+            scrollVelocity = Math.abs(scrollY - lastScrollY);
+            lastScrollY = scrollY;
+
+            // Calcular progresso baseado em seções de scroll
+            const sectionHeight = windowHeight;
+            let serviceIndex = Math.floor(scrollY / sectionHeight);
+
+            // Limitar ao número de serviços
+            serviceIndex = Math.max(0, Math.min(serviceIndex, services.length - 1));
+
+            scrollProgress = Math.min(scrollY / maxScroll, 1);
+
+            // Animar fundo com parallax baseado no scroll
+            animateBackground(scrollY);
+
+            // ========== NOVOS EFEITOS DE SCROLL ==========
+
+            // 1. Barra de progresso lateral
+            const progressFill = document.getElementById('scrollProgressFill');
+            if (progressFill) {
+                progressFill.style.height = `${scrollProgress * 100}%`;
+            }
+
+            // 2. Indicadores de seção
+            const sectionDots = document.querySelectorAll('.section-dot');
+            sectionDots.forEach((dot, index) => {
+                if (index === serviceIndex) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+
+            // 3. Velocímetro de scroll
+            const velocityWidget = document.getElementById('scrollVelocity');
+            const velocityFill = document.getElementById('velocityFill');
+            if (velocityWidget && velocityFill) {
+                // Mostrar velocímetro quando scrollando
+                if (scrollVelocity > 5) {
+                    velocityWidget.classList.add('visible');
+                    // Calcular offset baseado na velocidade (máx 50px/frame)
+                    const velocityPercent = Math.min(scrollVelocity / 50, 1);
+                    const offset = 157 - (velocityPercent * 157);
+                    velocityFill.style.strokeDashoffset = offset;
+
+                    // Mudar cor baseado na velocidade
+                    if (velocityPercent > 0.7) {
+                        velocityFill.style.stroke = '#a855f7'; // Roxo para velocidade alta
+                    } else if (velocityPercent > 0.4) {
+                        velocityFill.style.stroke = '#06b6d4'; // Ciano médio
+                    } else {
+                        velocityFill.style.stroke = '#00d4ff'; // Azul padrão
+                    }
+                } else {
+                    velocityWidget.classList.remove('visible');
+                }
+            }
+
+            // 4. Criar rastros de scroll
+            if (scrollVelocity > 10) {
+                createScrollTrail();
+            }
+
+            // ========== FIM NOVOS EFEITOS ==========
+
+            // Atualizar progress ring
+            const circle = document.getElementById('progressCircle');
+            if (circle) {
+                const offset = 138 - (scrollProgress * 138);
+                circle.style.strokeDashoffset = offset;
+            }
+
+            // Atualizar serviço baseado no scroll
+            if (serviceIndex !== currentService && serviceIndex >= 0 && serviceIndex < services.length) {
+                currentService = serviceIndex;
+                updateService(serviceIndex);
+                // Carregar o modelo 3D correspondente ao serviço
+                showObject(serviceIndex);
+            }
+
+            const progressNumber = document.getElementById('progressNumber');
+            if (progressNumber) {
+                progressNumber.textContent = String(serviceIndex + 1).padStart(2, '0');
+            }
+
+            // Mostrar center info sempre (título do serviço atual)
+            const centerInfo = document.getElementById('centerInfo');
+            if (centerInfo) {
+                centerInfo.classList.add('visible');
+            }
+
+            // Animar scroll-sections conforme entram na viewport
+            const scrollSections = document.querySelectorAll('.scroll-section');
+            scrollSections.forEach((section, index) => {
+                const sectionTop = section.offsetTop;
+                const sectionHeight = section.offsetHeight;
+                const triggerPoint = windowHeight * 0.7;
+
+                // Seção entra na viewport
+                if (scrollY + triggerPoint > sectionTop && scrollY < sectionTop + sectionHeight) {
+                    section.classList.add('visible');
+                }
+            });
+
+            // ============================================
+            // INFO LABELS - só aparecem na primeira seção (base.obj)
+            // ============================================
+            const infoLabels = document.querySelectorAll('.info-label');
+            const currentSectionForLabels = Math.floor(scrollY / windowHeight);
+
+            if (currentSectionForLabels === 0 && scrollY < windowHeight * 0.5) {
+                // Mostrar info labels apenas na seção 0 (antes de 50%)
+                infoLabels.forEach(label => label.classList.add('visible'));
+            } else {
+                // Esconder info labels nas outras seções
+                infoLabels.forEach(label => label.classList.remove('visible'));
+            }
+
+            // ============================================
+            // ESCONDER CANVAS E PAINÉIS após as seções dos modelos 3D
+            // ============================================
+            const canvasContainer = document.getElementById('canvas-container');
+            const detailPanel = document.getElementById('detailPanel');
+            const totalModelSections = services.length; // 3 seções de modelos
+            const endOfModelsScroll = windowHeight * totalModelSections;
+
+            if (scrollY > endOfModelsScroll - windowHeight * 0.3) {
+                // Esconder canvas e painéis quando chegar nas seções finais
+                if (canvasContainer) {
+                    canvasContainer.style.opacity = '0';
+                    canvasContainer.style.pointerEvents = 'none';
+                }
+                if (centerInfo) centerInfo.style.opacity = '0';
+                if (detailPanel) detailPanel.style.opacity = '0';
+            } else {
+                // Mostrar canvas e painéis nas seções dos modelos
+                if (canvasContainer) {
+                    canvasContainer.style.opacity = '1';
+                    canvasContainer.style.pointerEvents = 'auto';
+                }
+                if (centerInfo) centerInfo.style.opacity = '1';
+                // Em mobile, não controlar opacity do detailPanel automaticamente
+                if (detailPanel && window.innerWidth > 768) {
+                    detailPanel.style.opacity = '1';
+                }
+            }
+        }
+
+        // Função para criar rastros de scroll
+        function createScrollTrail() {
+            const container = document.getElementById('scrollTrails');
+            if (!container) return;
+
+            // Limitar número de rastros
+            if (container.children.length > 20) return;
+
+            const trail = document.createElement('div');
+            trail.className = 'scroll-trail';
+            trail.style.left = `${Math.random() * 100}%`;
+            trail.style.top = `${Math.random() * 100}%`;
+
+            // Cor aleatória entre ciano e roxo
+            const colors = ['#00d4ff', '#a855f7', '#06b6d4'];
+            trail.style.background = `linear-gradient(to bottom, transparent, ${colors[Math.floor(Math.random() * colors.length)]}, transparent)`;
+
+            container.appendChild(trail);
+
+            // Remover após animação
+            setTimeout(() => {
+                if (trail.parentNode) {
+                    trail.parentNode.removeChild(trail);
+                }
+            }, 1000);
+        }
+
+        function updateService(index) {
+            const service = services[index];
+            if (!service) return;
+
+            // Atualizar center info
+            const numEl = document.getElementById('curiosityNum');
+            const titleEl = document.getElementById('curiosityTitle');
+            const subEl = document.getElementById('curiositySub');
+
+            // Fade out
+            numEl.style.opacity = '0';
+            titleEl.style.opacity = '0';
+            subEl.style.opacity = '0';
+
+            setTimeout(() => {
+                numEl.textContent = String(index + 1).padStart(2, '0');
+                titleEl.textContent = service.title;
+                subEl.textContent = service.sub;
+
+                // Fade in
+                numEl.style.opacity = '1';
+                titleEl.style.opacity = '1';
+                subEl.style.opacity = '1';
+            }, 200);
+
+            // Atualizar detail panel
+            updateDetailPanel(service);
+        }
+
+        function updateDetailPanel(service) {
+            const detailPanel = document.getElementById('detailPanel');
+            if (!detailPanel) return;
+
+            const detailTitle = document.getElementById('detailTitle');
+            const detailDescription = document.getElementById('detailDescription');
+            const detailFeatures = document.querySelector('.detail-features');
+            const detailNumber = document.querySelector('.detail-number');
+
+            if (!detailTitle || !detailDescription || !detailFeatures || !detailNumber) return;
+
+            // Atualizar conteúdo
+            const serviceIndex = services.indexOf(service);
+            if (serviceIndex >= 0) {
+                detailNumber.textContent = String(serviceIndex + 1).padStart(2, '0');
+            }
+            detailTitle.textContent = service.title;
+            detailDescription.textContent = service.description;
+
+            // Atualizar features
+            detailFeatures.innerHTML = '';
+            if (service.features && Array.isArray(service.features)) {
+                service.features.forEach(feature => {
+                    const featureItem = document.createElement('div');
+                    featureItem.className = 'feature-item';
+                    featureItem.innerHTML = `
+                        <span class="feature-label">${feature.label}</span>
+                        <span class="feature-value">${feature.value}</span>
+                    `;
+                    detailFeatures.appendChild(featureItem);
+                });
+            }
+
+            // Mostrar painel - apenas em desktop (em mobile usa o modal)
+            if (window.innerWidth > 768) {
+                detailPanel.classList.add('visible');
+                detailPanel.style.opacity = '1';
+                detailPanel.style.transform = 'translateY(0)';
+            }
+        }
+
+
+        let selectedTooth = null;
+        let isDragging = false;
+        let dragPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
+        let dragOffset = new THREE.Vector3();
+        let previousMouse = new THREE.Vector2();
+
+        // ============================================
+        // CONTROLE DE ROTAÇÃO POR ARRASTO DO MODELO
+        // ============================================
+
+        function setupModelDragRotation() {
+            const canvas = renderer.domElement;
+
+            // Permitir que o scroll do mouse passe através do canvas para a página
+            canvas.addEventListener('wheel', (e) => {
+                // Não prevenir o comportamento padrão - deixar o scroll funcionar
+                // Propagar o evento para a página
+                const wheelEvent = new WheelEvent('wheel', {
+                    deltaY: e.deltaY,
+                    deltaX: e.deltaX,
+                    deltaMode: e.deltaMode,
+                    bubbles: true,
+                    cancelable: true
+                });
+                document.documentElement.dispatchEvent(wheelEvent);
+            }, { passive: true });
+
+            // Mouse down - iniciar rotação
+            canvas.addEventListener('mousedown', (e) => {
+                if (!baseModel || !teethGroup) return;
+
+                // Verificar se o canvas não está com blur (modelo visível)
+                const canvasContainer = document.getElementById('canvas-container');
+                if (canvasContainer && canvasContainer.classList.contains('blurred')) return;
+
+                // Iniciar arrasto diretamente (sem verificar raycaster para melhor responsividade)
+                isModelDragging = true;
+                autoRotateModel = false;
+                modelDragStart = { x: e.clientX, y: e.clientY };
+                modelRotationVelocity = { x: 0, y: 0 };
+                canvas.style.cursor = 'grabbing';
+                e.preventDefault();
+            });
+
+            // Mouse move - rotacionar modelo (no document para continuar mesmo fora do canvas)
+            document.addEventListener('mousemove', (e) => {
+                if (!isModelDragging || !currentVisibleModel) return;
+
+                const deltaX = e.clientX - modelDragStart.x;
+                const deltaY = e.clientY - modelDragStart.y;
+
+                // Aplicar rotação baseada no movimento do mouse
+                const rotationSpeed = 0.008;
+                currentVisibleModel.rotation.y += deltaX * rotationSpeed;
+                currentVisibleModel.rotation.x += deltaY * rotationSpeed;
+
+                // Limitar rotação X para não virar de cabeça para baixo
+                currentVisibleModel.rotation.x = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, currentVisibleModel.rotation.x));
+
+                // Guardar velocidade para inércia
+                modelRotationVelocity = {
+                    x: deltaY * rotationSpeed * 0.5,
+                    y: deltaX * rotationSpeed * 0.5
+                };
+
+                modelDragStart = { x: e.clientX, y: e.clientY };
+                lastDragTime = Date.now();
+            });
+
+            // Mouse up - soltar e voltar auto-rotação (no document)
+            document.addEventListener('mouseup', () => {
+                if (isModelDragging) {
+                    isModelDragging = false;
+                    canvas.style.cursor = 'grab';
+
+                    // Voltar auto-rotação após um delay
+                    setTimeout(() => {
+                        if (!isModelDragging) {
+                            autoRotateModel = true;
+                        }
+                    }, 2000); // 2 segundos após soltar
+                }
+            });
+
+            // Touch events para mobile
+            canvas.addEventListener('touchstart', (e) => {
+                if (!baseModel || !teethGroup || e.touches.length !== 1) return;
+
+                // Verificar se o canvas não está com blur
+                const canvasContainer = document.getElementById('canvas-container');
+                if (canvasContainer && canvasContainer.classList.contains('blurred')) return;
+
+                const touch = e.touches[0];
+                isModelDragging = true;
+                autoRotateModel = false;
+                modelDragStart = { x: touch.clientX, y: touch.clientY };
+            });
+
+            canvas.addEventListener('touchmove', (e) => {
+                if (!isModelDragging || !currentVisibleModel || e.touches.length !== 1) return;
+                e.preventDefault();
+
+                const touch = e.touches[0];
+                const deltaX = touch.clientX - modelDragStart.x;
+                const deltaY = touch.clientY - modelDragStart.y;
+
+                const rotationSpeed = 0.005;
+                currentVisibleModel.rotation.y += deltaX * rotationSpeed;
+                currentVisibleModel.rotation.x += deltaY * rotationSpeed;
+                currentVisibleModel.rotation.x = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, currentVisibleModel.rotation.x));
+
+                modelRotationVelocity = {
+                    x: deltaY * rotationSpeed * 0.5,
+                    y: deltaX * rotationSpeed * 0.5
+                };
+
+                modelDragStart = { x: touch.clientX, y: touch.clientY };
+                lastDragTime = Date.now();
+            }, { passive: false });
+
+            canvas.addEventListener('touchend', () => {
+                if (isModelDragging) {
+                    isModelDragging = false;
+                    if (controls) controls.enabled = true;
+
+                    setTimeout(() => {
+                        if (!isModelDragging) {
+                            autoRotateModel = true;
+                        }
+                    }, 2000);
+                }
+            });
+
+            // Hover effect - mudar cursor
+            canvas.addEventListener('mousemove', (e) => {
+                if (isModelDragging) return;
+
+                const mousePos = new THREE.Vector2(
+                    (e.clientX / window.innerWidth) * 2 - 1,
+                    -(e.clientY / window.innerHeight) * 2 + 1
+                );
+
+                raycaster.setFromCamera(mousePos, camera);
+                const intersects = raycaster.intersectObject(teethGroup, true);
+
+                canvas.style.cursor = intersects.length > 0 ? 'grab' : 'default';
+            });
+        }
+
+        function setupToothInteraction() {
+            // Mouse move para raycasting e hover
+            function onMouseMove(e) {
+                if (!raycaster || !teethGroup) return;
+                
+                mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+                if (isDragging && selectedTooth) {
+                    // Desabilitar OrbitControls durante o arrasto
+                    if (controls) {
+                        controls.enabled = false;
+                    }
+                    
+                    // Arrastar objeto - movimento livre em X e Y
+                    const deltaX = mouse.x - previousMouse.x;
+                    const deltaY = mouse.y - previousMouse.y;
+                    
+                    // Converter movimento da tela para movimento 3D
+                    // Velocidade maior para modelo base (é maior)
+                    const moveSpeed = selectedTooth.userData.isBaseModel ? 6 : 8;
+                    selectedTooth.userData.targetPos[0] += deltaX * moveSpeed;
+                    selectedTooth.userData.targetPos[1] -= deltaY * moveSpeed; // Inverter Y
+                    
+                    previousMouse.set(mouse.x, mouse.y);
+                    
+                    console.log('Arrastando objeto:', {
+                        deltaX: deltaX.toFixed(2),
+                        deltaY: deltaY.toFixed(2),
+                        targetPos: selectedTooth.userData.targetPos
+                    });
+                } else {
+                    // Reabilitar OrbitControls quando não está arrastando
+                    if (controls && !isDragging) {
+                        controls.enabled = true;
+                    }
+                    // Verificar hover
+                    if (currentObject) {
+                        raycaster.setFromCamera(mouse, camera);
+                        const intersects = raycaster.intersectObject(currentObject, true);
+
+                        renderer.domElement.style.cursor = intersects.length > 0 ? 'grab' : 'default';
+                    } else {
+                        renderer.domElement.style.cursor = 'default';
+                    }
+                }
+            }
+
+            // Mouse down - iniciar arrasto OU inspecionar
+            let clickStartTime = 0;
+            let clickStartPos = { x: 0, y: 0 };
+
+            renderer.domElement.addEventListener('mousedown', (e) => {
+                if (!raycaster || !teethGroup) return;
+                
+                clickStartTime = Date.now();
+                clickStartPos.x = e.clientX;
+                clickStartPos.y = e.clientY;
+                
+                mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+                if (currentObject) {
+                    raycaster.setFromCamera(mouse, camera);
+                    const intersects = raycaster.intersectObject(currentObject, true);
+
+                    if (intersects.length > 0) {
+                        console.log('Objeto clicado, iniciando arrasto...', {
+                            isBaseModel: currentObject.userData.isBaseModel,
+                            intersects: intersects.length
+                        });
+                        
+                        // Permitir arrastar para todos os objetos, incluindo modelo base
+                        selectedTooth = currentObject;
+                        isDragging = true;
+                        selectedTooth.userData.isDragging = true;
+                        
+                        // Desabilitar OrbitControls durante arrasto
+                        if (controls) {
+                            controls.enabled = false;
+                        }
+                        
+                        previousMouse.set(mouse.x, mouse.y);
+                        renderer.domElement.style.cursor = 'grabbing';
+                    }
+                }
+            });
+
+            // Mouse up - parar arrasto OU inspecionar
+            document.addEventListener('mouseup', (e) => {
+                const clickDuration = Date.now() - clickStartTime;
+                const clickDistance = Math.sqrt(
+                    Math.pow(e.clientX - clickStartPos.x, 2) + 
+                    Math.pow(e.clientY - clickStartPos.y, 2)
+                );
+
+                // Se foi um click rápido e sem movimento, inspecionar
+                if (selectedTooth && selectedTooth.userData.isBaseModel && 
+                    clickDuration < 200 && clickDistance < 5) {
+                    
+                    mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+                    mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+                    raycaster.setFromCamera(mouse, camera);
+                    const intersects = raycaster.intersectObject(selectedTooth, true);
+
+                    if (intersects.length > 0) {
+                        const clickedMesh = intersects[0].object;
+                        console.log('Mesh clicado:', {
+                            isMesh: clickedMesh.isMesh,
+                            isToothPart: clickedMesh.userData.isToothPart,
+                            mesh: clickedMesh
+                        });
+                        
+                        // Tentar encontrar o mesh pai se o clicado não for um mesh direto
+                        let targetMesh = clickedMesh;
+                        if (!clickedMesh.userData.isToothPart) {
+                            // Procurar mesh pai que tenha isToothPart
+                            let parent = clickedMesh.parent;
+                            while (parent && parent !== selectedTooth) {
+                                if (parent.userData && parent.userData.isToothPart) {
+                                    targetMesh = parent;
+                                    break;
+                                }
+                                parent = parent.parent;
+                            }
+                        }
+                        
+                        // Aceitar qualquer mesh do modelo base para inspeção
+                        if (targetMesh && targetMesh.isMesh) {
+                            console.log('✅ Inspecionando dente...', targetMesh);
+                            inspectToothPart(targetMesh, intersects[0].point);
+                        } else if (clickedMesh && clickedMesh.isMesh) {
+                            // Se não encontrou mesh pai, usar o mesh clicado diretamente
+                            console.log('✅ Usando mesh clicado diretamente para inspeção...', clickedMesh);
+                            inspectToothPart(clickedMesh, intersects[0].point);
+                        } else {
+                            console.warn('⚠️ Mesh não encontrado para inspeção');
+                        }
+                    }
+                } else if (isDragging && selectedTooth) {
+                    // Ao soltar após arrastar, atualizar serviço se necessário
+                    const serviceIndex = selectedTooth.userData.serviceIndex;
+                    if (serviceIndex >= 0 && serviceIndex < services.length && !selectedTooth.userData.isBaseModel) {
+                        updateService(serviceIndex);
+                    }
+                }
+                
+                // Reabilitar OrbitControls
+                if (controls) {
+                    controls.enabled = true;
+                }
+                
+                isDragging = false;
+                if (selectedTooth) {
+                    selectedTooth.userData.isDragging = false;
+                }
+                
+                // Se foi um click rápido (não arrastou) no modelo base, inspecionar
+                if (selectedTooth && selectedTooth.userData.isBaseModel && 
+                    clickDuration < 300 && clickDistance < 10) {
+                    console.log('Click detectado no modelo base, inspecionando...');
+                    // Manter selectedTooth para inspeção (já foi tratado acima)
+                } else {
+                    // Limpar seleção apenas se não for modelo base ou se arrastou
+                    if (!selectedTooth || !selectedTooth.userData.isBaseModel || clickDistance >= 5) {
+                        selectedTooth = null;
+                    }
+                }
+                renderer.domElement.style.cursor = 'default';
+            });
+
+            renderer.domElement.addEventListener('mousemove', onMouseMove);
+        }
+
+        // ============================================
+        // ANIMATE
+        // ============================================
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const time = Date.now() * 0.001;
+
+            // Atualizar controles
+            controls.update();
+
+            // Animação do objeto atual - movimento suave para posição alvo
+            if (teethGroup && currentObject) {
+                // Movimento suave para posição alvo (permite arrastar)
+                if (currentObject.userData.targetPos) {
+                    const targetPos = currentObject.userData.targetPos;
+                    if (currentObject.userData.isDragging) {
+                        // Durante o arrasto, mover diretamente (sem suavização)
+                        currentObject.position.x = targetPos[0];
+                        currentObject.position.y = targetPos[1];
+                        currentObject.position.z = targetPos[2];
+                    } else {
+                        // Quando não está arrastando, movimento suave
+                        currentObject.position.x += (targetPos[0] - currentObject.position.x) * 0.1;
+                        currentObject.position.y += (targetPos[1] - currentObject.position.y) * 0.1;
+                        currentObject.position.z += (targetPos[2] - currentObject.position.z) * 0.1;
+                    }
+                }
+                
+                // Animação de pulso no glow quando selecionado
+                if (currentObject.userData.isSelected && currentObject.userData.glowMesh) {
+                    const pulse = Math.sin(time * 2) * 0.1 + 0.2;
+                    currentObject.userData.glowMesh.material.opacity = pulse;
+                }
+
+                // Rotação suave contínua do objeto (mais lenta para modelo base)
+                if (!currentObject.userData.isDragging) {
+                    const rotationSpeed = currentObject.userData.isBaseModel ? 0.002 : 0.005;
+                    currentObject.rotation.y += rotationSpeed;
+                }
+                
+                // Animação de pulso na parte selecionada do modelo base
+                if (currentObject.userData.isBaseModel && currentObject.userData.selectedPart) {
+                    const selectedMesh = currentObject.userData.selectedPart;
+                    if (selectedMesh.material && selectedMesh.material.emissiveIntensity !== undefined) {
+                        const pulse = Math.sin(time * 3) * 0.2 + 0.8;
+                        selectedMesh.material.emissiveIntensity = pulse;
+                    }
+                }
+            }
+
+            // ============================================
+            // ROTAÇÃO AUTOMÁTICA DO MODELO VISÍVEL ATUAL
+            // ============================================
+            if (currentVisibleModel && !isModelDragging && !isTransitioning) {
+                currentVisibleModel.rotation.y += 0.008; // Velocidade de rotação automática
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // ============================================
+        // START
+        // ============================================
+
+        // Handler de erro global
+        window.addEventListener('error', (event) => {
+            console.error('❌ Erro global capturado:', event.error);
+            // Esconder loader em caso de erro
+            setTimeout(() => {
+                hideLoader();
+            }, 1000);
+        });
+
+        // Handler para erros não capturados
+        window.addEventListener('unhandledrejection', (event) => {
+            console.error('❌ Promise rejeitada:', event.reason);
+            // Esconder loader em caso de erro
+            setTimeout(() => {
+                hideLoader();
+            }, 1000);
+        });
+
+        // Timeout de segurança absoluto: esconder loader após 10 segundos, não importa o que aconteça
+        setTimeout(() => {
+            const loader = document.getElementById('loader');
+            if (loader && !loader.classList.contains('hidden')) {
+                console.warn('🚨 TIMEOUT ABSOLUTO: Forçando esconder loader após 10 segundos');
+                hideLoader();
+                
+                // Tentar criar objeto fallback se não houver nenhum
+                if (!currentObject && teethGroup) {
+                    try {
+                        const fallbackTooth = createTooth();
+                        if (fallbackTooth) {
+                            teethGroup.add(fallbackTooth);
+                            currentObject = fallbackTooth;
+                            updateService(0);
+                        }
+                    } catch (error) {
+                        console.error('Erro ao criar fallback no timeout absoluto:', error);
+                    }
+                }
+            }
+        }, 10000);
+
+        // ============================================
+        // MODAL MOBILE - Controle de abertura/fechamento
+        // ============================================
+        function setupMobileModal() {
+            const mobileInfoBtn = document.getElementById('mobileInfoBtn');
+            const modalClose = document.getElementById('modalClose');
+            const detailPanel = document.getElementById('detailPanel');
+
+            if (mobileInfoBtn && detailPanel) {
+                mobileInfoBtn.addEventListener('click', () => {
+                    detailPanel.classList.add('visible');
+                    document.body.style.overflow = 'hidden'; // Bloquear scroll
+                });
+            }
+
+            if (modalClose && detailPanel) {
+                modalClose.addEventListener('click', () => {
+                    detailPanel.classList.remove('visible');
+                    document.body.style.overflow = ''; // Liberar scroll
+                });
+            }
+
+            // Fechar ao clicar fora do conteúdo
+            if (detailPanel) {
+                detailPanel.addEventListener('click', (e) => {
+                    if (e.target === detailPanel) {
+                        detailPanel.classList.remove('visible');
+                        document.body.style.overflow = '';
+                    }
+                });
+            }
+
+            // Fechar com ESC
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && detailPanel && detailPanel.classList.contains('visible')) {
+                    detailPanel.classList.remove('visible');
+                    document.body.style.overflow = '';
+                }
+            });
+        }
+
+        // Inicializar modal mobile
+        setupMobileModal();
+
+        // ============================================
+        // ESCONDER MODAL E BOTÃO NAS SEÇÕES FINAIS (MOBILE)
+        // ============================================
+        function updateMobileElements() {
+            const mobileInfoBtn = document.getElementById('mobileInfoBtn');
+            const scrollY = window.scrollY;
+            const windowHeight = window.innerHeight;
+            const totalModelSections = services.length;
+            const endOfModelsScroll = windowHeight * totalModelSections;
+
+            if (mobileInfoBtn) {
+                if (scrollY > endOfModelsScroll - windowHeight * 0.5) {
+                    mobileInfoBtn.style.opacity = '0';
+                    mobileInfoBtn.style.pointerEvents = 'none';
+                } else {
+                    mobileInfoBtn.style.opacity = '1';
+                    mobileInfoBtn.style.pointerEvents = 'auto';
+                }
+            }
+        }
+
+        // Adicionar listener para atualizar elementos mobile no scroll
+        window.addEventListener('scroll', updateMobileElements);
+
+        // Inicializar com tratamento de erro
+        try {
+            console.log('🚀 Iniciando aplicação...');
+            init();
+        } catch (error) {
+            console.error('❌ Erro crítico na inicialização:', error);
+            // Esconder loader mesmo se houver erro
+            setTimeout(() => {
+                hideLoader();
+                // Tentar criar objeto fallback
+                if (typeof createTooth === 'function' && typeof scene !== 'undefined') {
+                    try {
+                        teethGroup = new THREE.Group();
+                        scene.add(teethGroup);
+                        const fallbackTooth = createTooth();
+                        if (fallbackTooth) {
+                            teethGroup.add(fallbackTooth);
+                            currentObject = fallbackTooth;
+                            if (typeof updateService === 'function') {
+                                updateService(0);
+                            }
+                        }
+                    } catch (fallbackError) {
+                        console.error('Erro ao criar fallback:', fallbackError);
+                    }
+                }
+            }, 500);
+        }
+    </script>
+</body>
+</html>
