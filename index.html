@@ -506,6 +506,7 @@
         #canvas-container canvas {
             pointer-events: auto !important; /* Forçar canvas a receber eventos */
             cursor: grab;
+            touch-action: pan-y; /* Permitir scroll vertical no mobile */
         }
 
         /* Transição entre modelos com blur */
@@ -801,6 +802,23 @@
             letter-spacing: 0.1em;
             margin-top: 1rem;
             opacity: 0.7;
+        }
+
+        /* Mostrar/esconder instruções baseado no dispositivo */
+        .center-info .instruction.desktop-only {
+            display: block;
+        }
+        .center-info .instruction.mobile-only {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .center-info .instruction.desktop-only {
+                display: none;
+            }
+            .center-info .instruction.mobile-only {
+                display: block;
+            }
         }
 
         .inspection-hint {
@@ -1604,7 +1622,8 @@
         <div class="title">Serviço_<span id="curiosityNum">01</span></div>
         <div class="main" id="curiosityTitle">Lentes de Contato Dental</div>
         <div class="sub" id="curiositySub"></div>
-        <div class="instruction">ARRASTE PARA MOVER • RODE PARA GIRAR</div>
+        <div class="instruction desktop-only">ARRASTE PARA MOVER • RODE PARA GIRAR</div>
+        <div class="instruction mobile-only">USE 2 DEDOS PARA GIRAR O MODELO</div>
     </div>
 
     <!-- Inspection Hint -->
@@ -4021,51 +4040,101 @@
             });
 
             // Touch events para mobile
+            // IMPORTANTE: Permitir scroll normal com 1 dedo, rotação do modelo com 2 dedos
+            let touchStartDistance = 0;
+            let touchStartAngle = 0;
+            let isTwoFingerGesture = false;
+
             canvas.addEventListener('touchstart', (e) => {
-                if (!baseModel || !teethGroup || e.touches.length !== 1) return;
+                if (!baseModel || !teethGroup) return;
 
                 // Verificar se o canvas não está com blur
                 const canvasContainer = document.getElementById('canvas-container');
                 if (canvasContainer && canvasContainer.classList.contains('blurred')) return;
 
-                const touch = e.touches[0];
-                isModelDragging = true;
-                autoRotateModel = false;
-                modelDragStart = { x: touch.clientX, y: touch.clientY };
+                // Com 2 dedos: preparar para rotação do modelo
+                if (e.touches.length === 2) {
+                    isTwoFingerGesture = true;
+                    isModelDragging = true;
+                    autoRotateModel = false;
+
+                    // Calcular distância e ângulo inicial entre os dois dedos
+                    const touch1 = e.touches[0];
+                    const touch2 = e.touches[1];
+                    touchStartDistance = Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
+                    touchStartAngle = Math.atan2(touch2.clientY - touch1.clientY, touch2.clientX - touch1.clientX);
+
+                    // Centro dos dois dedos
+                    modelDragStart = {
+                        x: (touch1.clientX + touch2.clientX) / 2,
+                        y: (touch1.clientY + touch2.clientY) / 2
+                    };
+                } else {
+                    // Com 1 dedo: permitir scroll normal (não fazer nada aqui)
+                    isTwoFingerGesture = false;
+                    isModelDragging = false;
+                }
             });
 
             canvas.addEventListener('touchmove', (e) => {
-                if (!isModelDragging || !currentVisibleModel || e.touches.length !== 1) return;
-                e.preventDefault();
+                if (!currentVisibleModel) return;
 
-                const touch = e.touches[0];
-                const deltaX = touch.clientX - modelDragStart.x;
-                const deltaY = touch.clientY - modelDragStart.y;
+                // Apenas processar se for gesto de 2 dedos
+                if (e.touches.length === 2 && isTwoFingerGesture) {
+                    e.preventDefault(); // Prevenir scroll apenas com 2 dedos
 
-                const rotationSpeed = 0.005;
-                currentVisibleModel.rotation.y += deltaX * rotationSpeed;
-                currentVisibleModel.rotation.x += deltaY * rotationSpeed;
-                currentVisibleModel.rotation.x = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, currentVisibleModel.rotation.x));
+                    const touch1 = e.touches[0];
+                    const touch2 = e.touches[1];
 
-                modelRotationVelocity = {
-                    x: deltaY * rotationSpeed * 0.5,
-                    y: deltaX * rotationSpeed * 0.5
-                };
+                    // Centro atual dos dois dedos
+                    const currentCenter = {
+                        x: (touch1.clientX + touch2.clientX) / 2,
+                        y: (touch1.clientY + touch2.clientY) / 2
+                    };
 
-                modelDragStart = { x: touch.clientX, y: touch.clientY };
-                lastDragTime = Date.now();
+                    // Movimento do centro (pan)
+                    const deltaX = currentCenter.x - modelDragStart.x;
+                    const deltaY = currentCenter.y - modelDragStart.y;
+
+                    // Rotação baseada no ângulo entre os dedos
+                    const currentAngle = Math.atan2(touch2.clientY - touch1.clientY, touch2.clientX - touch1.clientX);
+                    const angleDelta = currentAngle - touchStartAngle;
+
+                    // Aplicar rotação
+                    const rotationSpeed = 0.008;
+                    currentVisibleModel.rotation.y += deltaX * rotationSpeed;
+                    currentVisibleModel.rotation.x += deltaY * rotationSpeed;
+                    currentVisibleModel.rotation.x = Math.max(-Math.PI / 3, Math.min(Math.PI / 3, currentVisibleModel.rotation.x));
+
+                    // Rotação adicional baseada no giro dos dedos
+                    currentVisibleModel.rotation.z += angleDelta * 0.5;
+
+                    modelRotationVelocity = {
+                        x: deltaY * rotationSpeed * 0.5,
+                        y: deltaX * rotationSpeed * 0.5
+                    };
+
+                    modelDragStart = currentCenter;
+                    touchStartAngle = currentAngle;
+                    lastDragTime = Date.now();
+                }
+                // Com 1 dedo: não fazer nada, deixar o scroll acontecer naturalmente
             }, { passive: false });
 
-            canvas.addEventListener('touchend', () => {
-                if (isModelDragging) {
-                    isModelDragging = false;
-                    if (controls) controls.enabled = true;
+            canvas.addEventListener('touchend', (e) => {
+                // Resetar quando todos os dedos saírem ou voltar para 1 dedo
+                if (e.touches.length < 2) {
+                    if (isModelDragging && isTwoFingerGesture) {
+                        isModelDragging = false;
+                        isTwoFingerGesture = false;
+                        if (controls) controls.enabled = true;
 
-                    setTimeout(() => {
-                        if (!isModelDragging) {
-                            autoRotateModel = true;
-                        }
-                    }, 2000);
+                        setTimeout(() => {
+                            if (!isModelDragging) {
+                                autoRotateModel = true;
+                            }
+                        }, 2000);
+                    }
                 }
             });
 
