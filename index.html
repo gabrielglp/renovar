@@ -308,6 +308,41 @@
             }
         }
 
+        /* Partículas flutuantes de scroll */
+        .scroll-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 600;
+            overflow: hidden;
+        }
+
+        .scroll-particle {
+            position: absolute;
+            border-radius: 50%;
+            pointer-events: none;
+            will-change: transform, opacity;
+            opacity: 0.6;
+        }
+
+        .scroll-particle.cyan {
+            background: rgba(0, 212, 255, 1);
+            box-shadow: 0 0 15px rgba(0, 212, 255, 0.8), 0 0 30px rgba(0, 212, 255, 0.4);
+        }
+
+        .scroll-particle.purple {
+            background: rgba(168, 85, 247, 1);
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.8), 0 0 30px rgba(168, 85, 247, 0.4);
+        }
+
+        .scroll-particle.white {
+            background: rgba(255, 255, 255, 1);
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.8), 0 0 25px rgba(255, 255, 255, 0.4);
+        }
+
         /* Custom Cursor */
         .cursor {
             position: fixed;
@@ -502,14 +537,16 @@
         /* Info Labels - Estilo igloo.inc */
         .info-label {
             position: fixed;
-            z-index: 600;
+            z-index: 650;
             pointer-events: none;
             opacity: 0;
-            transition: opacity 0.6s ease;
+            transition: opacity 0.4s ease, transform 0.4s ease;
+            transform: translateY(10px);
         }
 
         .info-label.visible {
             opacity: 1;
+            transform: translateY(0);
         }
 
         .info-label .connector {
@@ -724,7 +761,8 @@
             text-align: center;
             pointer-events: none !important;
             opacity: 1;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+            will-change: opacity, transform;
         }
 
         .center-info.visible {
@@ -798,8 +836,9 @@
             z-index: 700;
             max-width: 400px;
             opacity: 1;
-            transition: all 0.5s ease;
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
             pointer-events: auto;
+            will-change: opacity, transform;
         }
 
         .detail-panel.visible {
@@ -1105,6 +1144,8 @@
             align-items: center;
             justify-content: center;
             text-align: center;
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+            will-change: opacity, transform;
         }
 
         .scroll-section-content h2 {
@@ -1468,6 +1509,9 @@
 
     <!-- Container para rastros de scroll -->
     <div class="scroll-trails" id="scrollTrails"></div>
+
+    <!-- Container para partículas flutuantes de scroll -->
+    <div class="scroll-particles" id="scrollParticles"></div>
 
     <!-- Loader -->
     <div id="loader">
@@ -1880,7 +1924,13 @@
                     { label: "Durabilidade", value: "15+ anos" },
                     { label: "Material", value: "Porcelana" }
                 ],
-                objPath: 'base.obj'
+                objPath: 'base.obj',
+                infoLabels: [
+                    { tag: "Procedimento_01", value: "Lentes de Contato", small: "PORCELANA ULTRAFINA" },
+                    { tag: "Tecnologia", value: "CAD/CAM 3D", small: "PRECISÃO DIGITAL" },
+                    { tag: "Resultado", value: "+8 Tons", small: "CLAREAMENTO LASER" },
+                    { tag: "Durabilidade", value: "15+ Anos", small: "GARANTIA ESTENDIDA" }
+                ]
             },
             {
                 title: "Escova de Dente Premium",
@@ -1891,7 +1941,13 @@
                     { label: "Duração", value: "3 meses" },
                     { label: "Limpeza", value: "360°" }
                 ],
-                objPath: 'escova.obj'
+                objPath: 'escova.obj',
+                infoLabels: [
+                    { tag: "Produto_02", value: "Escova Premium", small: "TECNOLOGIA AVANÇADA" },
+                    { tag: "Cerdas", value: "Ultra Macias", small: "5.000 FILAMENTOS" },
+                    { tag: "Design", value: "Ergonômico", small: "CABO ANTIDESLIZANTE" },
+                    { tag: "Eficiência", value: "360°", small: "LIMPEZA COMPLETA" }
+                ]
             },
             {
                 title: "Fio Dental Profissional",
@@ -1902,7 +1958,13 @@
                     { label: "Comprimento", value: "50m" },
                     { label: "Sabor", value: "Menta" }
                 ],
-                objPath: 'fio_dental.obj'
+                objPath: 'fio_dental.obj',
+                infoLabels: [
+                    { tag: "Produto_03", value: "Fio Dental Pro", small: "ALTA RESISTÊNCIA" },
+                    { tag: "Tecnologia", value: "Deslizante", small: "ENCERADO ESPECIAL" },
+                    { tag: "Eficácia", value: "99%", small: "REMOÇÃO DE PLACA" },
+                    { tag: "Comprimento", value: "50 Metros", small: "SABOR MENTA" }
+                ]
             }
         ];
 
@@ -2110,21 +2172,20 @@
             teethGroup = new THREE.Group();
             scene.add(teethGroup);
             
-            // Timeout máximo de 3 segundos para esconder loader mesmo se falhar
+            // Timeout máximo de 15 segundos para esconder loader mesmo se falhar (modelos grandes)
             loaderTimeout = setTimeout(() => {
                 console.warn('⏱️ Timeout: Carregamento demorou muito. Escondendo loader.');
                 hideLoader();
-            }, 3000);
+            }, 15000);
 
-            // Timeout de segurança adicional de 5 segundos
+            // Timeout de segurança adicional de 20 segundos (modelos grandes)
+            // Apenas marca como carregado, não força esconder (respeitando checkAndHideLoader)
             setTimeout(() => {
-                const loader = document.getElementById('loader');
-                if (loader && !loader.classList.contains('hidden')) {
-                    console.warn('⚠️ Timeout de segurança: Forçando esconder loader');
-                    loader.classList.add('hidden');
-                    loader.style.display = 'none';
+                if (!modelLoaded) {
+                    console.warn('⚠️ Timeout de segurança: Marcando modelo como carregado');
+                    hideLoader();
                 }
-            }, 5000);
+            }, 20000);
 
             // Função para verificar e carregar OBJLoader
             function checkAndLoadOBJLoader(attempt = 0, maxAttempts = 5) {
@@ -2183,7 +2244,8 @@
                 checkAndLoadOBJLoader();
             }, 500);
             
-            // Fallback de segurança: se após 3 segundos ainda não começou, usar fallback
+            // Fallback de segurança: se após 30 segundos ainda não começou, usar fallback
+            // (aumentado para acomodar modelos .obj grandes - ~50MB cada)
             setTimeout(() => {
                 if (!currentObject && teethGroup.children.length === 0) {
                     console.warn('⚠️ Fallback de segurança: Nenhum objeto foi criado. Criando objeto padrão.');
@@ -2200,7 +2262,7 @@
                         hideLoader(); // Esconder loader mesmo se falhar
                     }
                 }
-            }, 3000);
+            }, 30000);
         }
 
         // Função loadBaseModel removida - agora usa showObject() que gerencia todos os objetos corretamente
@@ -2304,8 +2366,15 @@
                     (error) => {
                         console.error('Erro ao carregar modelo .obj:', error);
                         console.error('Caminho tentado:', objPath);
-                        // Fallback para objeto procedural
-                        const fallbackObject = createTooth();
+                        // Fallback para objeto procedural correto baseado no tipo
+                        let fallbackObject = null;
+                        if (objPath.includes('escova')) {
+                            fallbackObject = createToothbrush();
+                        } else if (objPath.includes('fio_dental')) {
+                            fallbackObject = createDentalFloss();
+                        } else {
+                            fallbackObject = createTooth();
+                        }
                         resolve(fallbackObject);
                     }
                 );
@@ -3505,10 +3574,43 @@
                 progressNumber.textContent = String(serviceIndex + 1).padStart(2, '0');
             }
 
-            // Mostrar center info sempre (título do serviço atual)
+            // ============================================
+            // TRANSIÇÃO SUAVE DAS INFORMAÇÕES ENTRE SEÇÕES
+            // ============================================
             const centerInfo = document.getElementById('centerInfo');
+            const detailPanel = document.getElementById('detailPanel');
+
+            // Calcular progresso dentro da seção atual (0 a 1)
+            const sectionProgress = (scrollY % windowHeight) / windowHeight;
+
+            // Opacidade baseada na posição dentro da seção
+            // Começa em 0, sobe até 1 no meio, e desce para 0 no final
+            let infoOpacity;
+            if (sectionProgress < 0.15) {
+                // Fade in no início da seção (0% - 15%)
+                infoOpacity = sectionProgress / 0.15;
+            } else if (sectionProgress > 0.85) {
+                // Fade out no final da seção (85% - 100%)
+                infoOpacity = (1 - sectionProgress) / 0.15;
+            } else {
+                // Totalmente visível no meio
+                infoOpacity = 1;
+            }
+
+            // Aplicar opacidade com suavização
             if (centerInfo) {
                 centerInfo.classList.add('visible');
+                centerInfo.style.opacity = infoOpacity;
+                // Pequeno movimento vertical baseado no progresso
+                const translateY = (sectionProgress - 0.5) * -20;
+                centerInfo.style.transform = `translateX(-50%) translateY(${translateY}px)`;
+            }
+
+            if (detailPanel && window.innerWidth > 768) {
+                detailPanel.style.opacity = infoOpacity;
+                // Movimento lateral sutil
+                const translateX = (1 - infoOpacity) * 30;
+                detailPanel.style.transform = `translateX(${translateX}px)`;
             }
 
             // Animar scroll-sections conforme entram na viewport
@@ -3522,6 +3624,21 @@
                 if (scrollY + triggerPoint > sectionTop && scrollY < sectionTop + sectionHeight) {
                     section.classList.add('visible');
                 }
+
+                // Calcular opacidade da seção baseada na distância do centro
+                const sectionCenter = sectionTop + sectionHeight / 2;
+                const viewportCenter = scrollY + windowHeight / 2;
+                const distanceFromCenter = Math.abs(sectionCenter - viewportCenter);
+                const maxDistance = windowHeight;
+                const sectionOpacity = Math.max(0, 1 - (distanceFromCenter / maxDistance));
+
+                // Aplicar opacidade ao conteúdo da seção
+                const content = section.querySelector('.scroll-section-content');
+                if (content) {
+                    content.style.opacity = sectionOpacity;
+                    const contentTranslateY = (1 - sectionOpacity) * 30;
+                    content.style.transform = `translateY(${contentTranslateY}px)`;
+                }
             });
 
             // ============================================
@@ -3530,22 +3647,31 @@
             const infoLabels = document.querySelectorAll('.info-label');
             const currentSectionForLabels = Math.floor(scrollY / windowHeight);
 
-            if (currentSectionForLabels === 0 && scrollY < windowHeight * 0.5) {
-                // Mostrar info labels apenas na seção 0 (antes de 50%)
-                infoLabels.forEach(label => label.classList.add('visible'));
+            // ============================================
+            // INFO LABELS - mostrar em todas as seções de modelos
+            // ============================================
+            const canvasContainer = document.getElementById('canvas-container');
+            const totalModelSections = services.length; // 3 seções de modelos
+            const endOfModelsScroll = windowHeight * totalModelSections;
+
+            // Mostrar info labels enquanto estiver nas seções dos modelos 3D
+            if (scrollY < endOfModelsScroll - windowHeight * 0.3) {
+                // Dentro das seções de modelos - mostrar labels com opacidade baseada na posição
+                infoLabels.forEach(label => {
+                    label.classList.add('visible');
+                    label.style.opacity = infoOpacity;
+                });
             } else {
-                // Esconder info labels nas outras seções
-                infoLabels.forEach(label => label.classList.remove('visible'));
+                // Fora das seções de modelos - esconder labels
+                infoLabels.forEach(label => {
+                    label.classList.remove('visible');
+                    label.style.opacity = '0';
+                });
             }
 
             // ============================================
             // ESCONDER CANVAS E PAINÉIS após as seções dos modelos 3D
             // ============================================
-            const canvasContainer = document.getElementById('canvas-container');
-            const detailPanel = document.getElementById('detailPanel');
-            const totalModelSections = services.length; // 3 seções de modelos
-            const endOfModelsScroll = windowHeight * totalModelSections;
-
             if (scrollY > endOfModelsScroll - windowHeight * 0.3) {
                 // Esconder canvas e painéis quando chegar nas seções finais
                 if (canvasContainer) {
@@ -3560,11 +3686,7 @@
                     canvasContainer.style.opacity = '1';
                     canvasContainer.style.pointerEvents = 'auto';
                 }
-                if (centerInfo) centerInfo.style.opacity = '1';
-                // Em mobile, não controlar opacity do detailPanel automaticamente
-                if (detailPanel && window.innerWidth > 768) {
-                    detailPanel.style.opacity = '1';
-                }
+                // A opacidade do centerInfo e detailPanel já é controlada pela transição acima
             }
         }
 
@@ -3595,6 +3717,109 @@
             }, 1000);
         }
 
+        // ============================================
+        // PARTÍCULAS FLUTUANTES DE SCROLL
+        // ============================================
+        const scrollParticlesData = [];
+        let particlesInitialized = false;
+
+        function initScrollParticles() {
+            if (particlesInitialized) return;
+
+            const container = document.getElementById('scrollParticles');
+            if (!container) {
+                console.warn('Container scrollParticles não encontrado');
+                return;
+            }
+
+            console.log('Inicializando partículas flutuantes...');
+            particlesInitialized = true;
+
+            const particleCount = 50;
+            const colors = ['cyan', 'purple', 'white'];
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                const colorClass = colors[Math.floor(Math.random() * colors.length)];
+                const size = 3 + Math.random() * 8;
+
+                particle.className = `scroll-particle ${colorClass}`;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+
+                // Posição inicial aleatória
+                const x = Math.random() * 100;
+                const y = Math.random() * 100;
+                particle.style.left = `${x}%`;
+                particle.style.top = `${y}%`;
+
+                // Dados para animação
+                const particleData = {
+                    element: particle,
+                    x: x,
+                    y: y,
+                    baseY: y,
+                    speed: 0.2 + Math.random() * 0.5,
+                    floatPhase: Math.random() * Math.PI * 2,
+                    floatSpeed: 0.02 + Math.random() * 0.03,
+                    floatAmplitude: 15 + Math.random() * 25,
+                    size: size
+                };
+
+                scrollParticlesData.push(particleData);
+                container.appendChild(particle);
+            }
+
+            console.log(`${particleCount} partículas criadas`);
+
+            // Iniciar animação
+            animateScrollParticles();
+        }
+
+        function animateScrollParticles() {
+            const currentScrollY = window.scrollY;
+            const scrollDelta = currentScrollY - lastScrollY;
+
+            scrollParticlesData.forEach((data) => {
+                // Flutuação contínua
+                data.floatPhase += data.floatSpeed;
+                const floatX = Math.sin(data.floatPhase) * data.floatAmplitude;
+                const floatY = Math.cos(data.floatPhase * 0.7) * (data.floatAmplitude * 0.5);
+
+                // Movimento baseado no scroll
+                data.y -= data.speed + (Math.abs(scrollDelta) * 0.05);
+
+                // Reset quando sair da tela
+                if (data.y < -5) {
+                    data.y = 105;
+                    data.x = Math.random() * 100;
+                }
+                if (data.y > 105) {
+                    data.y = -5;
+                }
+
+                // Aplicar posição e transformação
+                data.element.style.left = `${data.x}%`;
+                data.element.style.top = `${data.y}%`;
+                data.element.style.transform = `translate(${floatX}px, ${floatY}px)`;
+
+                // Opacidade baseada na velocidade do scroll (mais visível quando scrollando)
+                const baseOpacity = 0.5;
+                const scrollOpacity = Math.min(Math.abs(scrollDelta) * 0.1, 0.5);
+                data.element.style.opacity = baseOpacity + scrollOpacity;
+            });
+
+            lastScrollY = currentScrollY;
+            requestAnimationFrame(animateScrollParticles);
+        }
+
+        // Inicializar partículas quando a página carregar
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initScrollParticles);
+        } else {
+            initScrollParticles();
+        }
+
         function updateService(index) {
             const service = services[index];
             if (!service) return;
@@ -3622,6 +3847,51 @@
 
             // Atualizar detail panel
             updateDetailPanel(service);
+
+            // Atualizar info labels
+            updateInfoLabels(service);
+        }
+
+        // Função para atualizar os info labels baseado no serviço atual
+        function updateInfoLabels(service) {
+            if (!service || !service.infoLabels) return;
+
+            const labels = [
+                document.getElementById('label-1'),
+                document.getElementById('label-2'),
+                document.getElementById('label-3'),
+                document.getElementById('label-4')
+            ];
+
+            // Fade out primeiro
+            labels.forEach(label => {
+                if (label) {
+                    label.style.opacity = '0';
+                    label.style.transform = 'translateY(10px)';
+                }
+            });
+
+            // Atualizar conteúdo e fade in
+            setTimeout(() => {
+                service.infoLabels.forEach((info, index) => {
+                    const label = labels[index];
+                    if (label) {
+                        const tagEl = label.querySelector('.tag');
+                        const valueEl = label.querySelector('.value');
+                        const smallEl = label.querySelector('.small');
+
+                        if (tagEl) tagEl.textContent = info.tag;
+                        if (valueEl) valueEl.textContent = info.value;
+                        if (smallEl) smallEl.textContent = info.small;
+
+                        // Fade in com delay escalonado
+                        setTimeout(() => {
+                            label.style.opacity = '1';
+                            label.style.transform = 'translateY(0)';
+                        }, index * 100);
+                    }
+                });
+            }, 200);
         }
 
         function updateDetailPanel(service) {
@@ -4073,13 +4343,17 @@
             }, 1000);
         });
 
-        // Timeout de segurança absoluto: esconder loader após 10 segundos, não importa o que aconteça
+        // Timeout de segurança absoluto: forçar esconder loader após 45 segundos
+        // Este é o único timeout que força diretamente (caso tudo falhe)
         setTimeout(() => {
             const loader = document.getElementById('loader');
             if (loader && !loader.classList.contains('hidden')) {
-                console.warn('🚨 TIMEOUT ABSOLUTO: Forçando esconder loader após 10 segundos');
-                hideLoader();
-                
+                console.warn('🚨 TIMEOUT ABSOLUTO: Forçando esconder loader após 45 segundos');
+                // Forçar ambas as flags como true
+                pageFullyLoaded = true;
+                modelLoaded = true;
+                actuallyHideLoader();
+
                 // Tentar criar objeto fallback se não houver nenhum
                 if (!currentObject && teethGroup) {
                     try {
@@ -4094,7 +4368,7 @@
                     }
                 }
             }
-        }, 10000);
+        }, 45000);
 
         // ============================================
         // MODAL MOBILE - Controle de abertura/fechamento
