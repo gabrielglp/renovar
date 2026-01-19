@@ -1,0 +1,36 @@
+# Compressão GZIP para arquivos 3D
+<IfModule mod_deflate.c>
+    # Comprimir arquivos OBJ (pode reduzir em 80-90%)
+    AddOutputFilterByType DEFLATE model/obj
+    AddOutputFilterByType DEFLATE application/octet-stream
+    
+    # Comprimir também outros arquivos
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE text/javascript
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/json
+</IfModule>
+
+# Adicionar tipo MIME para arquivos .obj
+<IfModule mod_mime.c>
+    AddType model/obj .obj
+    AddType model/gltf+json .gltf
+    AddType model/gltf-binary .glb
+</IfModule>
+
+# Cache para arquivos 3D (1 semana)
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType model/obj "access plus 7 days"
+    ExpiresByType model/gltf+json "access plus 7 days"
+    ExpiresByType model/gltf-binary "access plus 7 days"
+</IfModule>
+
+# Habilitar cache do browser
+<IfModule mod_headers.c>
+    <FilesMatch "\.(obj|gltf|glb)$">
+        Header set Cache-Control "max-age=604800, public"
+    </FilesMatch>
+</IfModule>
+

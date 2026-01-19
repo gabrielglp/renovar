@@ -2424,36 +2424,86 @@
                 checkAndLoadOBJLoader();
             }, 500);
 
-            // Fallback de segurança: se após 30 segundos ainda não começou, usar fallback
-            // (aumentado para acomodar modelos .obj grandes - ~50MB cada)
-            setTimeout(() => {
-                if (!currentObject && teethGroup.children.length === 0) {
-                    console.warn('⚠️ Fallback de segurança: Nenhum objeto foi criado. Criando objeto padrão.');
-                    try {
-                        const fallbackTooth = createTooth();
-                        if (fallbackTooth) {
-                            teethGroup.add(fallbackTooth);
-                            currentObject = fallbackTooth;
-                            updateService(0);
-                            hideLoader();
-                        }
-                    } catch (error) {
-                        console.error('Erro no fallback de segurança:', error);
-                        hideLoader(); // Esconder loader mesmo se falhar
-                    }
-                }
-            }, 30000);
+            // Sem fallback - apenas aguarda modelos reais carregarem
         }
 
         // Função loadBaseModel removida - agora usa showObject() que gerencia todos os objetos corretamente
 
-        // Função para carregar arquivo .obj
-        function loadOBJModel(objPath, serviceIndex) {
+        // ============================================
+        // CACHE DE MODELOS (IndexedDB) para carregar instantaneamente
+        // ============================================
+        const DB_NAME = 'RenovarModelsCache';
+        const DB_VERSION = 1;
+        const STORE_NAME = 'models';
+        
+        async function initDB() {
             return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                
+                request.onerror = () => reject(request.error);
+                request.onsuccess = () => resolve(request.result);
+                
+                request.onupgradeneeded = (event) => {
+                    const db = event.target.result;
+                    if (!db.objectStoreNames.contains(STORE_NAME)) {
+                        db.createObjectStore(STORE_NAME, { keyPath: 'path' });
+                    }
+                };
+            });
+        }
+        
+        async function getCachedModel(objPath) {
+            try {
+                const db = await initDB();
+                return new Promise((resolve, reject) => {
+                    const transaction = db.transaction([STORE_NAME], 'readonly');
+                    const store = transaction.objectStore(STORE_NAME);
+                    const request = store.get(objPath);
+                    
+                    request.onsuccess = () => resolve(request.result?.data);
+                    request.onerror = () => resolve(null);
+                });
+            } catch (error) {
+                console.warn('Cache não disponível:', error);
+                return null;
+            }
+        }
+        
+        async function cacheModel(objPath, data) {
+            try {
+                const db = await initDB();
+                const transaction = db.transaction([STORE_NAME], 'readwrite');
+                const store = transaction.objectStore(STORE_NAME);
+                store.put({ path: objPath, data: data, timestamp: Date.now() });
+            } catch (error) {
+                console.warn('Não foi possível cachear:', error);
+            }
+        }
+
+        // Função para carregar arquivo .obj (com cache)
+        function loadOBJModel(objPath, serviceIndex) {
+            return new Promise(async (resolve, reject) => {
+                // Tentar carregar do cache primeiro
+                console.log(`🔍 Verificando cache para ${objPath}...`);
+                const cached = await getCachedModel(objPath);
+                
+                if (cached) {
+                    console.log(`⚡ ${objPath} carregado do CACHE instantaneamente!`);
+                    try {
+                        const loader = new THREE.ObjectLoader();
+                        const object = loader.parse(cached);
+                        resolve(object);
+                        return;
+                    } catch (error) {
+                        console.warn('Cache corrompido, recarregando:', error);
+                    }
+                }
+                
                 if (!objLoader) {
                     objLoader = new THREE.OBJLoader();
                 }
 
+                console.log(`📥 Baixando ${objPath} da rede...`);
                 objLoader.load(
                     objPath,
                     // onLoad
@@ -2516,14 +2566,31 @@
                                     flatShading: false // Smooth shading para melhor aparência
                                 });
 
-                                // Otimizações de geometria
+                                // Otimizações agressivas de geometria
                                 if (child.geometry) {
+                                    console.log(`🔧 Otimizando mesh (${child.geometry.attributes.position.count} vértices)...`);
+                                    
                                     // Não calcular normais se já existirem
                                     if (!child.geometry.attributes.normal) {
                                         child.geometry.computeVertexNormals();
                                     }
+                                    
+                                    // SIMPLIFICAÇÃO: Mesclar vértices duplicados
+                                    const originalCount = child.geometry.attributes.position.count;
+                                    child.geometry = child.geometry.toNonIndexed(); // Converter para não-indexado primeiro
+                                    
                                     // Liberar dados desnecessários
+                                    child.geometry.deleteAttribute('uv');
                                     child.geometry.deleteAttribute('uv2');
+                                    
+                                    // Comprimir geometria
+                                    child.geometry.computeBoundingSphere();
+                                    child.geometry.computeBoundingBox();
+                                    
+                                    const finalCount = child.geometry.attributes.position.count;
+                                    if (originalCount !== finalCount) {
+                                        console.log(`✂️ Simplificado: ${originalCount} → ${finalCount} vértices (${Math.round((1 - finalCount/originalCount) * 100)}% redução)`);
+                                    }
                                 }
 
                                 child.castShadow = false;
@@ -2550,6 +2617,16 @@
                             object.userData.selectedPart = null;
                         }
 
+                        // Cachear modelo para próxima visita (carregamento instantâneo)
+                        try {
+                            const loader = new THREE.ObjectLoader();
+                            const json = loader.toJSON(object);
+                            cacheModel(objPath, json);
+                            console.log(`💾 ${objPath} cacheado para próxima visita!`);
+                        } catch (error) {
+                            console.warn('Não foi possível cachear modelo:', error);
+                        }
+
                         resolve(object);
                     },
                     // onProgress
@@ -2561,18 +2638,10 @@
                     },
                     // onError
                     (error) => {
-                        console.error('Erro ao carregar modelo .obj:', error);
+                        console.error('❌ ERRO ao carregar modelo .obj:', error);
                         console.error('Caminho tentado:', objPath);
-                        // Fallback para objeto procedural correto baseado no tipo
-                        let fallbackObject = null;
-                        if (objPath.includes('escova')) {
-                            fallbackObject = createToothbrush();
-                        } else if (objPath.includes('fio_dental')) {
-                            fallbackObject = createDentalFloss();
-                        } else {
-                            fallbackObject = createTooth();
-                        }
-                        resolve(fallbackObject);
+                        console.error('⚠️ Modelo não será exibido. Verifique se o arquivo existe.');
+                        reject(error); // Rejeitar em vez de criar fallback
                     }
                 );
             });
@@ -2658,18 +2727,8 @@
                             }
                         } catch (error) {
                             console.error(`❌ Erro ao carregar ${objPath}:`, error);
-                            
-                            // Criar fallback apenas para o primeiro modelo
-                            if (i === 0) {
-                                const fallback = createTooth();
-                                fallback.visible = true;
-                                teethGroup.add(fallback);
-                                currentVisibleModel = fallback;
-                                baseModel = fallback;
-                                loadedModels[objPath] = fallback;
-                                modelsLoadedCount++;
-                                console.log('⚠️ Usando modelo fallback para', objPath);
-                            }
+                            console.error('⚠️ Modelo não será carregado. Verifique o arquivo.');
+                            // NÃO criar fallback - apenas continuar para próximo modelo
                         }
                     }
                 }
@@ -4805,19 +4864,8 @@
                 modelsLoadedCount = totalModelsToLoad;
                 actuallyHideLoader();
 
-                // Tentar criar objeto fallback se não houver nenhum
-                if (!currentObject && teethGroup) {
-                    try {
-                        const fallbackTooth = createTooth();
-                        if (fallbackTooth) {
-                            teethGroup.add(fallbackTooth);
-                            currentObject = fallbackTooth;
-                            updateService(0);
-                        }
-                    } catch (error) {
-                        console.error('Erro ao criar fallback no timeout absoluto:', error);
-                    }
-                }
+                // Sem fallback - se chegou aqui é porque os modelos realmente falharam
+                console.error('⚠️ Nenhum modelo foi carregado após timeout absoluto.');
             }
         }, 240000); // 4 minutos
 
@@ -4894,26 +4942,10 @@
             init();
         } catch (error) {
             console.error('❌ Erro crítico na inicialização:', error);
-            // Esconder loader mesmo se houver erro
+            // Esconder loader mesmo se houver erro (sem fallback)
             setTimeout(() => {
+                console.error('⚠️ Erro crítico - página será exibida sem modelos 3D');
                 hideLoader();
-                // Tentar criar objeto fallback
-                if (typeof createTooth === 'function' && typeof scene !== 'undefined') {
-                    try {
-                        teethGroup = new THREE.Group();
-                        scene.add(teethGroup);
-                        const fallbackTooth = createTooth();
-                        if (fallbackTooth) {
-                            teethGroup.add(fallbackTooth);
-                            currentObject = fallbackTooth;
-                            if (typeof updateService === 'function') {
-                                updateService(0);
-                            }
-                        }
-                    } catch (fallbackError) {
-                        console.error('Erro ao criar fallback:', fallbackError);
-                    }
-                }
             }, 500);
         }
     </script>
