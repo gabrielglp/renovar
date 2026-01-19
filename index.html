@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -142,9 +143,11 @@
                 transform: translateY(-100%);
                 opacity: 0;
             }
+
             50% {
                 opacity: 0.3;
             }
+
             100% {
                 transform: translateY(0);
                 opacity: 0;
@@ -236,6 +239,7 @@
                 transform: translate(-50%, -50%) scale(1);
                 opacity: 1;
             }
+
             100% {
                 transform: translate(-50%, -50%) scale(2);
                 opacity: 0;
@@ -302,6 +306,7 @@
                 opacity: 0.5;
                 transform: translateY(0);
             }
+
             100% {
                 opacity: 0;
                 transform: translateY(100px);
@@ -346,6 +351,8 @@
         /* Custom Cursor */
         .cursor {
             position: fixed;
+            top: 0;
+            left: 0;
             width: 12px;
             height: 12px;
             background: var(--text);
@@ -353,13 +360,16 @@
             pointer-events: none;
             z-index: 10000;
             mix-blend-mode: difference;
-            transition: transform 0.2s ease;
+            will-change: transform;
+            transform-origin: center center;
         }
 
         .cursor.hover {
-            transform: scale(3);
+            width: 36px;
+            height: 36px;
             background: var(--neon-blue);
             box-shadow: 0 0 20px var(--neon-blue);
+            transition: width 0.2s ease, height 0.2s ease;
         }
 
         /* Loader */
@@ -391,7 +401,7 @@
         .loader-progress {
             width: 200px;
             height: 1px;
-            background: rgba(0,0,0,0.1);
+            background: rgba(0, 0, 0, 0.1);
             position: relative;
             overflow: hidden;
         }
@@ -399,14 +409,26 @@
         .loader-bar {
             position: absolute;
             height: 100%;
-            background: var(--text);
-            animation: load 2s ease-in-out forwards;
+            background: var(--neon-blue);
+            box-shadow: 0 0 10px var(--neon-blue);
+            animation: load 6s ease-in-out infinite;
         }
 
         @keyframes load {
-            0% { width: 0; left: 0; }
-            50% { width: 100%; left: 0; }
-            100% { width: 0; left: 100%; }
+            0% {
+                width: 0;
+                left: 0;
+            }
+
+            50% {
+                width: 100%;
+                left: 0;
+            }
+
+            100% {
+                width: 0;
+                left: 100%;
+            }
         }
 
         /* Navigation */
@@ -424,7 +446,8 @@
             pointer-events: none;
         }
 
-        nav a, nav button {
+        nav a,
+        nav button {
             pointer-events: auto;
         }
 
@@ -499,26 +522,33 @@
         #canvas-container {
             position: fixed;
             inset: 0;
-            z-index: 500; /* Alto para ficar acima de tudo */
+            z-index: 500;
             transition: filter 0.3s ease, opacity 0.5s ease;
-            pointer-events: none; /* Container não bloqueia touch */
+            pointer-events: none;
+            will-change: opacity;
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
         }
 
         #canvas-container canvas {
-            pointer-events: auto; /* Canvas recebe eventos de mouse no desktop */
-            cursor: grab;
+            pointer-events: auto;
+            cursor: default;
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
         }
 
         /* No mobile, desabilitar pointer-events do canvas para permitir scroll */
         @media (max-width: 768px) {
             #canvas-container canvas {
-                pointer-events: none; /* Desabilitar no mobile - scroll passa através */
+                pointer-events: none;
+                /* Desabilitar no mobile - scroll passa através */
             }
         }
 
         /* Área de toque para girar modelo no mobile */
         .mobile-model-touch-area {
-            display: none; /* Escondido no desktop */
+            display: none;
+            /* Escondido no desktop */
         }
 
         @media (max-width: 768px) {
@@ -536,7 +566,8 @@
                 /* Borda sutil para indicar área de toque */
                 border: 2px dashed rgba(0, 212, 255, 0.2);
                 background: transparent;
-                touch-action: none; /* Prevenir scroll nessa área */
+                touch-action: none;
+                /* Prevenir scroll nessa área */
             }
 
             .mobile-model-touch-area:active {
@@ -567,7 +598,8 @@
         }
 
         /* Garantir que seções fiquem acima do fundo */
-        .section, .scroll-section {
+        .section,
+        .scroll-section {
             position: relative;
             z-index: 10;
         }
@@ -785,8 +817,17 @@
         }
 
         @keyframes scrollDot {
-            0%, 100% { top: 0; opacity: 1; }
-            100% { top: 100%; opacity: 0; }
+
+            0%,
+            100% {
+                top: 0;
+                opacity: 1;
+            }
+
+            100% {
+                top: 100%;
+                opacity: 0;
+            }
         }
 
         /* Center Info - Posicionado na parte inferior */
@@ -794,13 +835,13 @@
             position: fixed;
             bottom: 6rem;
             left: 50%;
-            transform: translateX(-50%);
+            transform: translateX(-50%) translate3d(0, 0, 0);
             z-index: 700;
             text-align: center;
             pointer-events: none !important;
-            opacity: 1;
-            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
-            will-change: opacity, transform;
+            opacity: 0;
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+            contain: layout style paint;
         }
 
         .center-info.visible {
@@ -845,6 +886,7 @@
         .center-info .instruction.desktop-only {
             display: block;
         }
+
         .center-info .instruction.mobile-only {
             display: none;
         }
@@ -853,6 +895,7 @@
             .center-info .instruction.desktop-only {
                 display: none;
             }
+
             .center-info .instruction.mobile-only {
                 display: block;
             }
@@ -890,10 +933,11 @@
             left: 4rem;
             z-index: 700;
             max-width: 400px;
-            opacity: 1;
-            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+            opacity: 0;
+            transform: translate3d(0, 0, 0);
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
             pointer-events: auto;
-            will-change: opacity, transform;
+            contain: layout style;
         }
 
         .detail-panel.visible {
@@ -1068,6 +1112,7 @@
         }
 
         @media (max-width: 768px) {
+
             /* Em mobile, o detail-panel vira um modal */
             .detail-panel {
                 position: fixed;
@@ -1106,6 +1151,7 @@
                     opacity: 0;
                     transform: translateY(50px);
                 }
+
                 to {
                     opacity: 1;
                     transform: translateY(0);
@@ -1143,7 +1189,7 @@
         }
 
         .progress-ring .bg {
-            stroke: rgba(0,0,0,0.1);
+            stroke: rgba(0, 0, 0, 0.1);
         }
 
         .progress-ring .progress {
@@ -1170,7 +1216,7 @@
         .scroll-section {
             min-height: 100vh;
             position: relative;
-            z-index: 5; /* Abaixo do canvas interativo */
+            z-index: 5;
             background: transparent;
             display: flex;
             align-items: center;
@@ -1178,6 +1224,8 @@
             opacity: 0;
             transform: translateY(50px);
             transition: opacity 0.8s ease, transform 0.8s ease;
+            content-visibility: auto;
+            contain-intrinsic-size: auto 100vh;
         }
 
         .scroll-section.visible {
@@ -1256,7 +1304,7 @@
             position: relative;
             z-index: 200;
             background: var(--bg);
-            background-image: 
+            background-image:
                 linear-gradient(180deg, rgba(0, 212, 255, 0.02) 0%, transparent 50%);
         }
 
@@ -1306,7 +1354,7 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 1px;
-            background: rgba(0,0,0,0.1);
+            background: rgba(0, 0, 0, 0.1);
             margin-top: 4rem;
         }
 
@@ -1380,11 +1428,11 @@
         }
 
         .contact-section .section-tag {
-            color: rgba(255,255,255,0.5);
+            color: rgba(255, 255, 255, 0.5);
         }
 
         .contact-section .section-tag::before {
-            background: rgba(255,255,255,0.3);
+            background: rgba(255, 255, 255, 0.3);
         }
 
         .contact-grid {
@@ -1401,7 +1449,7 @@
         }
 
         .contact-item {
-            border-bottom: 1px solid rgba(255,255,255,0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             padding-bottom: 2rem;
         }
 
@@ -1410,7 +1458,7 @@
             font-size: 0.6rem;
             letter-spacing: 0.25em;
             text-transform: uppercase;
-            color: rgba(255,255,255,0.4);
+            color: rgba(255, 255, 255, 0.4);
             margin-bottom: 0.8rem;
         }
 
@@ -1434,7 +1482,7 @@
             width: 100%;
             background: transparent;
             border: none;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
             padding: 1.5rem 0;
             color: white;
             font-family: 'Space Grotesk', sans-serif;
@@ -1446,12 +1494,12 @@
         .contact-form input:focus,
         .contact-form textarea:focus {
             outline: none;
-            border-color: rgba(255,255,255,0.5);
+            border-color: rgba(255, 255, 255, 0.5);
         }
 
         .contact-form input::placeholder,
         .contact-form textarea::placeholder {
-            color: rgba(255,255,255,0.3);
+            color: rgba(255, 255, 255, 0.3);
         }
 
         .contact-form button {
@@ -1488,7 +1536,7 @@
         footer .copyright {
             font-family: 'Space Mono', monospace;
             font-size: 0.6rem;
-            color: rgba(255,255,255,0.4);
+            color: rgba(255, 255, 255, 0.4);
             letter-spacing: 0.1em;
         }
 
@@ -1540,6 +1588,7 @@
         }
     </style>
 </head>
+
 <body>
     <!-- Custom Cursor -->
     <div class="cursor" id="cursor"></div>
@@ -1558,8 +1607,8 @@
 
     <!-- Velocímetro de scroll -->
     <svg class="scroll-velocity" id="scrollVelocity" viewBox="0 0 60 60">
-        <circle class="scroll-velocity-ring" cx="30" cy="30" r="25"/>
-        <circle class="scroll-velocity-fill" id="velocityFill" cx="30" cy="30" r="25" transform="rotate(-90 30 30)"/>
+        <circle class="scroll-velocity-ring" cx="30" cy="30" r="25" />
+        <circle class="scroll-velocity-fill" id="velocityFill" cx="30" cy="30" r="25" transform="rotate(-90 30 30)" />
     </svg>
 
     <!-- Container para rastros de scroll -->
@@ -1585,8 +1634,8 @@
             <a href="#contact" class="nav-link">Contato</a>
             <button class="sound-toggle">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <path d="M11 5L6 9H2v6h4l5 4V5z"/>
-                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+                    <path d="M11 5L6 9H2v6h4l5 4V5z" />
+                    <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
                 </svg>
                 Sound: On
             </button>
@@ -1684,8 +1733,8 @@
             <div class="detail-number">01</div>
             <div class="detail-title" id="detailTitle">Lentes de Contato Dental</div>
             <div class="detail-description" id="detailDescription">
-                Facetas ultrafinas de porcelana com apenas 0.3mm de espessura. 
-                Transformação completa do sorriso com mínimo desgaste dental. 
+                Facetas ultrafinas de porcelana com apenas 0.3mm de espessura.
+                Transformação completa do sorriso com mínimo desgaste dental.
                 Resultados naturais e duradouros.
             </div>
             <div class="detail-features">
@@ -1733,8 +1782,8 @@
     <!-- Progress Ring -->
     <div class="progress-ring">
         <svg viewBox="0 0 50 50">
-            <circle class="bg" cx="25" cy="25" r="22"/>
-            <circle class="progress" id="progressCircle" cx="25" cy="25" r="22"/>
+            <circle class="bg" cx="25" cy="25" r="22" />
+            <circle class="progress" id="progressCircle" cx="25" cy="25" r="22" />
         </svg>
         <div class="number" id="progressNumber">01</div>
     </div>
@@ -1891,8 +1940,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <!-- OBJLoader para carregar arquivos .obj - tentar múltiplos CDNs -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js" 
-            onerror="console.warn('Erro ao carregar OBJLoader do CDN principal, tentando alternativo...'); 
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js" onerror="console.warn('Erro ao carregar OBJLoader do CDN principal, tentando alternativo...'); 
                      var script = document.createElement('script');
                      script.src = 'https://threejs.org/examples/js/loaders/OBJLoader.js';
                      script.onerror = function() { 
@@ -1912,13 +1960,13 @@
         // ============================================
         // SCROLL SUAVE PARA LINKS DA NAVBAR
         // ============================================
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Scroll para o topo ao carregar
             window.scrollTo(0, 0);
 
             // Adicionar scroll suave para todos os links internos
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function(e) {
+                anchor.addEventListener('click', function (e) {
                     e.preventDefault();
                     const targetId = this.getAttribute('href');
 
@@ -1942,19 +1990,8 @@
             });
 
             // Atualizar barra de progresso no scroll
-            function updateScrollProgress() {
-                const scrollTop = window.scrollY;
-                const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-                const scrollPercent = (scrollTop / docHeight) * 100;
-
-                const progressFill = document.getElementById('scrollProgressFill');
-                if (progressFill) {
-                    progressFill.style.height = scrollPercent + '%';
-                }
-            }
-
-            window.addEventListener('scroll', updateScrollProgress);
-            updateScrollProgress(); // Inicial
+            // Progresso de scroll já é atualizado pela função onScroll()
+            // Não precisamos de listener duplicado aqui
         });
 
         // ============================================
@@ -2047,7 +2084,7 @@
             console.log('🚀 Inicializando aplicação...');
             console.log('THREE disponível?', typeof THREE !== 'undefined');
             console.log('THREE.OBJLoader disponível?', typeof THREE !== 'undefined' && typeof THREE.OBJLoader !== 'undefined');
-            
+
             const container = document.getElementById('canvas-container');
 
             // Scene
@@ -2059,17 +2096,24 @@
             camera = new THREE.PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 100);
             camera.position.set(0, 0, 18);
 
-            // Renderer - otimizado para mobile
+            // Renderer - otimizado para performance
             const isMobile = window.innerWidth <= 768;
             renderer = new THREE.WebGLRenderer({
                 antialias: !isMobile, // Desabilitar antialiasing no mobile
                 alpha: true,
-                powerPreference: isMobile ? 'low-power' : 'high-performance'
+                powerPreference: 'high-performance', // Forçar high-performance
+                stencil: false, // Desabilitar stencil buffer
+                depth: true,
+                logarithmicDepthBuffer: false
             });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1 : 1.5)); // Limitar mais no mobile
-            renderer.shadowMap.enabled = false; // Desabilitado para melhor performance
+            // Limitar pixel ratio para melhor performance
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, isMobile ? 1 : 1.5));
+            renderer.shadowMap.enabled = false; // Desabilitado para performance
             renderer.outputEncoding = THREE.sRGBEncoding;
+            // Otimizações adicionais
+            renderer.sortObjects = false; // Desabilitar sorting (melhora performance)
+            renderer.autoClear = true;
             container.appendChild(renderer.domElement);
 
             // Controls
@@ -2096,15 +2140,35 @@
 
             // Setup raycasting for tooth interaction
             raycaster = new THREE.Raycaster();
+            // Otimizar raycaster para melhor performance
+            raycaster.params.Points.threshold = 0.1;
+            raycaster.params.Line.threshold = 1;
             setupToothInteraction();
 
             // Setup drag rotation for 3D model
             setupModelDragRotation();
 
-            // Events
+            // Events - otimizados
             window.addEventListener('resize', onResize);
-            window.addEventListener('mousemove', onMouseMove);
-            window.addEventListener('scroll', onScroll);
+            window.addEventListener('mousemove', onMouseMove, { passive: true });
+
+            // Scroll otimizado com requestAnimationFrame
+            let scrollTicking = false;
+            let scrollScheduled = false;
+
+            window.addEventListener('scroll', () => {
+                if (!scrollTicking) {
+                    scrollTicking = true;
+                    if (!scrollScheduled) {
+                        scrollScheduled = true;
+                        requestAnimationFrame(() => {
+                            onScroll();
+                            scrollTicking = false;
+                            scrollScheduled = false;
+                        });
+                    }
+                }
+            }, { passive: true });
 
             // Hide loader - aguardar carregamento do modelo base
             // O loader será escondido quando o modelo base for carregado
@@ -2177,11 +2241,22 @@
         // Flag para controlar carregamento completo
         let pageFullyLoaded = false;
         let modelLoaded = false;
+        const pageLoadStartTime = Date.now();
+        const minimumLoadingTime = 5000; // Tempo mínimo de 5 segundos para garantir carregamento completo
 
         function checkAndHideLoader() {
             // Só esconde o loader quando TUDO estiver carregado
             if (pageFullyLoaded && modelLoaded) {
-                actuallyHideLoader();
+                // Garantir que o loader ficou visível pelo tempo mínimo
+                const elapsedTime = Date.now() - pageLoadStartTime;
+                const remainingTime = minimumLoadingTime - elapsedTime;
+
+                if (remainingTime > 0) {
+                    console.log(`⏳ Aguardando mais ${remainingTime}ms para tempo mínimo de loading...`);
+                    setTimeout(actuallyHideLoader, remainingTime);
+                } else {
+                    actuallyHideLoader();
+                }
             }
         }
 
@@ -2189,30 +2264,71 @@
             try {
                 console.log('✅ Tudo carregado! Escondendo loader...');
                 const loader = document.getElementById('loader');
-                if (loader) {
-                    // Animação suave de fade out
-                    loader.style.transition = 'opacity 0.8s ease, visibility 0.8s ease';
-                    loader.style.opacity = '0';
-                    setTimeout(() => {
-                        loader.classList.add('hidden');
-                        loader.style.display = 'none';
-                    }, 800);
-                }
                 const centerInfo = document.getElementById('centerInfo');
-                if (centerInfo) {
-                    setTimeout(() => {
-                        centerInfo.classList.add('visible');
-                        centerInfo.style.opacity = '1';
-                    }, 300);
-                }
                 const detailPanel = document.getElementById('detailPanel');
-                // Em mobile, não mostrar automaticamente (usa modal)
-                if (detailPanel && window.innerWidth > 768) {
-                    setTimeout(() => {
-                        detailPanel.classList.add('visible');
-                        detailPanel.style.opacity = '1';
-                    }, 600);
+
+                // WARMUP: Forçar alguns renders para aquecer o GPU e evitar travadas
+                if (renderer && scene && camera) {
+                    console.log('🔥 Aquecendo GPU...');
+                    for (let i = 0; i < 3; i++) {
+                        renderer.render(scene, camera);
+                    }
                 }
+
+                // PRÉ-PREPARAR elementos para evitar reflow/repaint
+                if (centerInfo) {
+                    centerInfo.style.willChange = 'opacity, transform';
+                }
+                if (detailPanel && window.innerWidth > 768) {
+                    detailPanel.style.willChange = 'opacity, transform';
+                }
+
+                // Pequeno delay para garantir que o warmup foi processado
+                requestAnimationFrame(() => {
+                    if (loader) {
+                        // Animação suave de fade out
+                        loader.style.transition = 'opacity 0.8s ease, visibility 0.8s ease';
+                        loader.style.opacity = '0';
+
+                        // Usar requestAnimationFrame para sincronizar animações
+                        requestAnimationFrame(() => {
+                            requestAnimationFrame(() => {
+                                // Mostrar centerInfo suavemente DURANTE o fade do loader
+                                if (centerInfo) {
+                                    centerInfo.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                                    centerInfo.classList.add('visible');
+                                    centerInfo.style.opacity = '1';
+                                }
+
+                                // Esconder loader completamente
+                                setTimeout(() => {
+                                    loader.classList.add('hidden');
+                                    loader.style.display = 'none';
+
+                                    // Mostrar detailPanel após loader desaparecer (desktop)
+                                    if (detailPanel && window.innerWidth > 768) {
+                                        requestAnimationFrame(() => {
+                                            detailPanel.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+                                            detailPanel.classList.add('visible');
+                                            detailPanel.style.opacity = '1';
+
+                                            // Limpar will-change após animações
+                                            setTimeout(() => {
+                                                if (centerInfo) centerInfo.style.willChange = 'auto';
+                                                if (detailPanel) detailPanel.style.willChange = 'auto';
+                                            }, 600);
+                                        });
+                                    } else {
+                                        // Limpar will-change se não tiver detailPanel
+                                        setTimeout(() => {
+                                            if (centerInfo) centerInfo.style.willChange = 'auto';
+                                        }, 600);
+                                    }
+                                }, 800);
+                            });
+                        });
+                    }
+                }); // Fechar requestAnimationFrame do warmup
             } catch (error) {
                 console.error('Erro ao esconder loader:', error);
                 const loader = document.getElementById('loader');
@@ -2239,26 +2355,26 @@
         function createTeeth() {
             teethGroup = new THREE.Group();
             scene.add(teethGroup);
-            
-            // Timeout máximo de 15 segundos para esconder loader mesmo se falhar (modelos grandes)
+
+            // Timeout máximo de 30 segundos para esconder loader mesmo se falhar (modelos grandes)
             loaderTimeout = setTimeout(() => {
                 console.warn('⏱️ Timeout: Carregamento demorou muito. Escondendo loader.');
                 hideLoader();
-            }, 15000);
+            }, 30000);
 
-            // Timeout de segurança adicional de 20 segundos (modelos grandes)
+            // Timeout de segurança adicional de 40 segundos (modelos grandes)
             // Apenas marca como carregado, não força esconder (respeitando checkAndHideLoader)
             setTimeout(() => {
                 if (!modelLoaded) {
                     console.warn('⚠️ Timeout de segurança: Marcando modelo como carregado');
                     hideLoader();
                 }
-            }, 20000);
+            }, 40000);
 
             // Função para verificar e carregar OBJLoader
             function checkAndLoadOBJLoader(attempt = 0, maxAttempts = 5) {
                 console.log(`Verificando OBJLoader (tentativa ${attempt + 1}/${maxAttempts})...`);
-                
+
                 // Verificar se THREE está disponível
                 if (typeof THREE === 'undefined') {
                     console.warn('THREE.js ainda não está disponível');
@@ -2272,7 +2388,7 @@
                     }
                     return;
                 }
-                
+
                 // Verificar se OBJLoader está disponível
                 if (typeof THREE.OBJLoader !== 'undefined') {
                     try {
@@ -2306,12 +2422,12 @@
                     }
                 }
             }
-            
+
             // Iniciar verificação após um pequeno delay
             setTimeout(() => {
                 checkAndLoadOBJLoader();
             }, 500);
-            
+
             // Fallback de segurança: se após 30 segundos ainda não começou, usar fallback
             // (aumentado para acomodar modelos .obj grandes - ~50MB cada)
             setTimeout(() => {
@@ -2368,7 +2484,7 @@
                         // Centralizar o modelo
                         object.position.sub(center);
                         object.scale.setScalar(scale);
-                        
+
                         // Verificar tipo de modelo
                         const isBaseObj = objPath.includes('base');
                         const isEscova = objPath.includes('escova');
@@ -2400,17 +2516,30 @@
                                     metalness: 0.1,
                                     roughness: 0.5,
                                     emissive: emissiveColor,
-                                    emissiveIntensity: emissiveIntensity
+                                    emissiveIntensity: emissiveIntensity,
+                                    flatShading: false // Smooth shading para melhor aparência
                                 });
+
+                                // Otimizações de geometria
+                                if (child.geometry) {
+                                    // Não calcular normais se já existirem
+                                    if (!child.geometry.attributes.normal) {
+                                        child.geometry.computeVertexNormals();
+                                    }
+                                    // Liberar dados desnecessários
+                                    child.geometry.deleteAttribute('uv2');
+                                }
+
                                 child.castShadow = false;
                                 child.receiveShadow = false;
-                                
+                                child.frustumCulled = true; // Ativar frustum culling
+
                                 // Se for base.obj, marcar meshes para inspeção
                                 if (isBaseObj) {
                                     child.userData.isToothPart = true;
                                     child.userData.originalMaterial = child.material.clone();
                                     child.userData.meshIndex = meshIndex++;
-                                    
+
                                     // Calcular posição relativa para identificar dente
                                     const meshBox = new THREE.Box3().setFromObject(child);
                                     const meshCenter = meshBox.getCenter(new THREE.Vector3());
@@ -2462,64 +2591,69 @@
         let currentVisibleModel = null;
         let isTransitioning = false;
 
-        // Pré-carregar todos os modelos no início
+        // Pré-carregar TODOS os modelos ANTES de esconder o loader
         async function preloadAllModels() {
-            console.log('🔄 Pré-carregando todos os modelos...');
+            console.log('🔄 Pré-carregando TODOS os modelos...');
+
+            const loaderStatus = document.getElementById('loaderStatus');
+            if (loaderStatus) {
+                loaderStatus.textContent = 'Carregando modelos 3D...';
+            }
 
             try {
-                // Carregar apenas o primeiro modelo para começar rápido
-                const firstService = services[0];
-                const firstObjPath = firstService.objPath || 'base.obj';
+                // Carregar TODOS os modelos em SEQUÊNCIA (não em background)
+                for (let i = 0; i < services.length; i++) {
+                    const service = services[i];
+                    const objPath = service.objPath || 'base.obj';
 
-                try {
-                    const firstObject = await loadOBJModel(firstObjPath, 0);
-                    if (firstObject) {
-                        firstObject.visible = true; // Primeiro visível
-                        firstObject.userData.objPath = firstObjPath;
-                        teethGroup.add(firstObject);
-                        loadedModels[firstObjPath] = firstObject;
-                        currentVisibleModel = firstObject;
-                        baseModel = firstObject;
-                        console.log('✅', firstObjPath, 'carregado!');
+                    // Atualizar status
+                    if (loaderStatus) {
+                        loaderStatus.textContent = `Carregando ${objPath} (${i + 1}/${services.length})...`;
                     }
-                } catch (error) {
-                    console.error('Erro ao carregar primeiro modelo:', error);
-                    // Criar fallback
-                    const fallback = createTooth();
-                    fallback.visible = true;
-                    teethGroup.add(fallback);
-                    currentVisibleModel = fallback;
-                    baseModel = fallback;
+
+                    if (!loadedModels[objPath]) {
+                        try {
+                            console.log(`📦 Carregando ${objPath}...`);
+                            const object = await loadOBJModel(objPath, i);
+                            if (object) {
+                                object.visible = (i === 0); // Apenas o primeiro visível
+                                object.userData.objPath = objPath;
+                                teethGroup.add(object);
+                                loadedModels[objPath] = object;
+
+                                // Configurar primeiro modelo
+                                if (i === 0) {
+                                    currentVisibleModel = object;
+                                    baseModel = object;
+                                }
+
+                                console.log(`✅ ${objPath} carregado! (${i + 1}/${services.length})`);
+                            }
+                        } catch (error) {
+                            console.error(`❌ Erro ao carregar ${objPath}:`, error);
+
+                            // Criar fallback apenas para o primeiro modelo
+                            if (i === 0) {
+                                const fallback = createTooth();
+                                fallback.visible = true;
+                                teethGroup.add(fallback);
+                                currentVisibleModel = fallback;
+                                baseModel = fallback;
+                                console.log('⚠️ Usando modelo fallback para', objPath);
+                            }
+                        }
+                    }
                 }
 
                 // Inicializar informações do primeiro serviço
                 updateService(0);
                 updateDetailPanel(services[0]);
 
-                console.log('✅ Primeiro modelo carregado!');
+                if (loaderStatus) {
+                    loaderStatus.textContent = '✅ Todos os modelos carregados!';
+                }
 
-                // Carregar os outros modelos em background (sem bloquear)
-                setTimeout(async () => {
-                    for (let i = 1; i < services.length; i++) {
-                        const service = services[i];
-                        const objPath = service.objPath || 'base.obj';
-
-                        if (!loadedModels[objPath]) {
-                            try {
-                                const object = await loadOBJModel(objPath, i);
-                                if (object) {
-                                    object.visible = false;
-                                    object.userData.objPath = objPath;
-                                    teethGroup.add(object);
-                                    loadedModels[objPath] = object;
-                                    console.log('✅', objPath, 'pré-carregado em background!');
-                                }
-                            } catch (error) {
-                                console.error('Erro ao pré-carregar', objPath, ':', error);
-                            }
-                        }
-                    }
-                }, 1000);
+                console.log('✅✅✅ TODOS OS MODELOS CARREGADOS COM SUCESSO!');
 
             } catch (error) {
                 console.error('Erro geral no preloadAllModels:', error);
@@ -2589,14 +2723,14 @@
         function createToothbrush() {
             const group = new THREE.Group();
 
-            // Material da escova
-            const handleMaterial = new THREE.MeshPhysicalMaterial({
+            // Material da escova - otimizado para performance
+            const handleMaterial = new THREE.MeshStandardMaterial({
                 color: 0x0066cc,
                 metalness: 0.1,
                 roughness: 0.4
             });
 
-            const bristleMaterial = new THREE.MeshPhysicalMaterial({
+            const bristleMaterial = new THREE.MeshStandardMaterial({
                 color: 0xffffff,
                 metalness: 0.0,
                 roughness: 0.6
@@ -2615,9 +2749,9 @@
             group.add(head);
 
             // Cerdas
-            const bristleCount = 20;
+            const bristleCount = 12; // Reduzido de 20 para 12
             for (let i = 0; i < bristleCount; i++) {
-                const bristleGeometry = new THREE.CylinderGeometry(0.02, 0.02, 0.15, 6);
+                const bristleGeometry = new THREE.CylinderGeometry(0.02, 0.02, 0.15, 4); // Reduzido de 6 para 4
                 const bristle = new THREE.Mesh(bristleGeometry, bristleMaterial);
                 const x = (i % 5) * 0.1 - 0.2;
                 const z = Math.floor(i / 5) * 0.05 - 0.05;
@@ -2658,7 +2792,7 @@
         function createTooth() {
             const group = new THREE.Group();
 
-            const toothMaterial = new THREE.MeshPhysicalMaterial({
+            const toothMaterial = new THREE.MeshStandardMaterial({
                 color: 0xf8f8f5,
                 metalness: 0.1,
                 roughness: 0.3,
@@ -2669,12 +2803,12 @@
             const shape = new THREE.Shape();
             const width = 0.6;
             const height = 1.0;
-            
-            shape.moveTo(-width/2, -height/2);
-            shape.lineTo(-width/3, height/4);
-            shape.quadraticCurveTo(0, height/2, width/3, height/4);
-            shape.lineTo(width/2, -height/2);
-            shape.quadraticCurveTo(0, -height/2 - 0.1, -width/2, -height/2);
+
+            shape.moveTo(-width / 2, -height / 2);
+            shape.lineTo(-width / 3, height / 4);
+            shape.quadraticCurveTo(0, height / 2, width / 3, height / 4);
+            shape.lineTo(width / 2, -height / 2);
+            shape.quadraticCurveTo(0, -height / 2 - 0.1, -width / 2, -height / 2);
             shape.closePath();
 
             const geometry = new THREE.ExtrudeGeometry(shape, {
@@ -2682,8 +2816,8 @@
                 bevelEnabled: true,
                 bevelThickness: 0.05,
                 bevelSize: 0.05,
-                bevelSegments: 8,
-                curveSegments: 16
+                bevelSegments: 3, // Reduzido de 8 para 3
+                curveSegments: 8  // Reduzido de 16 para 8
             });
 
             const tooth = new THREE.Mesh(geometry, toothMaterial);
@@ -2718,27 +2852,27 @@
         function createToothpaste() {
             const group = new THREE.Group();
 
-            const tubeMaterial = new THREE.MeshPhysicalMaterial({
+            const tubeMaterial = new THREE.MeshStandardMaterial({
                 color: 0xffffff,
                 metalness: 0.2,
                 roughness: 0.3
             });
 
-            const capMaterial = new THREE.MeshPhysicalMaterial({
+            const capMaterial = new THREE.MeshStandardMaterial({
                 color: 0x0066cc,
                 metalness: 0.3,
                 roughness: 0.4
             });
 
             // Corpo do tubo
-            const tubeGeometry = new THREE.CylinderGeometry(0.3, 0.35, 1.2, 32);
+            const tubeGeometry = new THREE.CylinderGeometry(0.3, 0.35, 1.2, 16); // Reduzido de 32 para 16
             const tube = new THREE.Mesh(tubeGeometry, tubeMaterial);
             tube.rotation.z = Math.PI / 2;
             tube.position.x = -0.3;
             group.add(tube);
 
             // Tampa
-            const capGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.2, 16);
+            const capGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.2, 8); // Reduzido de 16 para 8
             const cap = new THREE.Mesh(capGeometry, capMaterial);
             cap.rotation.z = Math.PI / 2;
             cap.position.x = 0.3;
@@ -2772,7 +2906,7 @@
         function createDentalFloss() {
             const group = new THREE.Group();
 
-            const containerMaterial = new THREE.MeshPhysicalMaterial({
+            const containerMaterial = new THREE.MeshStandardMaterial({
                 color: 0x333333,
                 metalness: 0.5,
                 roughness: 0.3
@@ -2828,7 +2962,7 @@
 
             let geometry;
 
-            switch(type) {
+            switch (type) {
                 case 'incisor':
                     geometry = createIncisorGeometry();
                     break;
@@ -2876,16 +3010,16 @@
             const width = 0.5;
             const height = 0.9;
             const radius = 0.1;
-            
-            shape.moveTo(-width/2 + radius, -height/2);
-            shape.lineTo(width/2 - radius, -height/2);
-            shape.quadraticCurveTo(width/2, -height/2, width/2, -height/2 + radius);
-            shape.lineTo(width/2, height/2 - radius);
-            shape.quadraticCurveTo(width/2, height/2, width/2 - radius, height/2);
-            shape.lineTo(-width/2 + radius, height/2);
-            shape.quadraticCurveTo(-width/2, height/2, -width/2, height/2 - radius);
-            shape.lineTo(-width/2, -height/2 + radius);
-            shape.quadraticCurveTo(-width/2, -height/2, -width/2 + radius, -height/2);
+
+            shape.moveTo(-width / 2 + radius, -height / 2);
+            shape.lineTo(width / 2 - radius, -height / 2);
+            shape.quadraticCurveTo(width / 2, -height / 2, width / 2, -height / 2 + radius);
+            shape.lineTo(width / 2, height / 2 - radius);
+            shape.quadraticCurveTo(width / 2, height / 2, width / 2 - radius, height / 2);
+            shape.lineTo(-width / 2 + radius, height / 2);
+            shape.quadraticCurveTo(-width / 2, height / 2, -width / 2, height / 2 - radius);
+            shape.lineTo(-width / 2, -height / 2 + radius);
+            shape.quadraticCurveTo(-width / 2, -height / 2, -width / 2 + radius, -height / 2);
             shape.closePath();
 
             return new THREE.ExtrudeGeometry(shape, {
@@ -2903,13 +3037,13 @@
             const shape = new THREE.Shape();
             const width = 0.45;
             const height = 1.0;
-            
-            shape.moveTo(-width/2, -height/2);
-            shape.lineTo(-width/3, height/3);
-            shape.lineTo(0, height/2);
-            shape.lineTo(width/3, height/3);
-            shape.lineTo(width/2, -height/2);
-            shape.quadraticCurveTo(0, -height/2 - 0.1, -width/2, -height/2);
+
+            shape.moveTo(-width / 2, -height / 2);
+            shape.lineTo(-width / 3, height / 3);
+            shape.lineTo(0, height / 2);
+            shape.lineTo(width / 3, height / 3);
+            shape.lineTo(width / 2, -height / 2);
+            shape.quadraticCurveTo(0, -height / 2 - 0.1, -width / 2, -height / 2);
             shape.closePath();
 
             return new THREE.ExtrudeGeometry(shape, {
@@ -2947,7 +3081,7 @@
                 const y = positions[i + 1];
                 const x = positions[i];
                 const z = positions[i + 2];
-                
+
                 if (y > 0.25) {
                     // Criar 4 cúspides principais nos cantos
                     const distFromCorner = Math.sqrt(Math.pow(Math.abs(x) - 0.3, 2) + Math.pow(Math.abs(z) - 0.3, 2));
@@ -3019,7 +3153,7 @@
             }
 
             // Esferas flutuantes com glow - neon tech
-            const sphereGeometry = new THREE.SphereGeometry(0.03, 16, 16);
+            const sphereGeometry = new THREE.SphereGeometry(0.03, 8, 8); // Reduzido de 16 para 8
             const sphereMaterialBlue = new THREE.MeshBasicMaterial({
                 color: 0x00d4ff,
                 transparent: true,
@@ -3164,7 +3298,7 @@
             teethGroup.add(smallRing);
 
             // Pontos orbitando
-            const orbitDotGeometry = new THREE.SphereGeometry(0.06, 16, 16);
+            const orbitDotGeometry = new THREE.SphereGeometry(0.06, 8, 8); // Reduzido de 16 para 8
             const orbitDotMaterial = new THREE.MeshBasicMaterial({
                 color: 0x00d4ff,
                 transparent: true,
@@ -3211,12 +3345,12 @@
                 isBaseModel: currentObject?.userData?.isBaseModel,
                 mesh: mesh
             });
-            
+
             if (!currentObject || !currentObject.userData.isBaseModel) {
                 console.warn('⚠️ Não é modelo base ou currentObject não existe');
                 return;
             }
-            
+
             if (!mesh || !mesh.isMesh) {
                 console.warn('⚠️ Mesh inválido para inspeção');
                 return;
@@ -3232,7 +3366,7 @@
 
             // Destacar parte clicada com material neon
             mesh.userData.originalMaterial = mesh.material.clone();
-            mesh.material = new THREE.MeshPhysicalMaterial({
+            mesh.material = new THREE.MeshStandardMaterial({
                 color: 0x00d4ff,
                 metalness: 0.5,
                 roughness: 0.1,
@@ -3246,16 +3380,16 @@
             // Determinar qual dente foi clicado baseado na posição do mesh
             const worldPosition = mesh.userData.worldPosition || new THREE.Vector3();
             mesh.getWorldPosition(worldPosition);
-            
+
             // Calcular índice do dente baseado na posição X e Y
             // Posição X: -1 (esquerda) a 1 (direita)
             // Posição Y: negativa (inferior) a positiva (superior)
             const normalizedX = (worldPosition.x + 1) / 2; // 0 a 1
             const isUpper = worldPosition.y > 0;
-            
+
             // Dividir em 5 dentes por arcada (simplificado)
             const toothInArch = Math.min(Math.floor(normalizedX * 5), 4);
-            
+
             // Mapear para índice do array (0-4 superior, 5-9 inferior)
             let toothIndex;
             if (isUpper) {
@@ -3265,7 +3399,7 @@
                 // Inferior: mesmo padrão
                 toothIndex = 5 + toothInArch;
             }
-            
+
             // Garantir que está no range
             toothIndex = Math.max(0, Math.min(toothIndex, toothPartsInfo.length - 1));
             const toothInfo = toothPartsInfo[toothIndex] || toothPartsInfo[0];
@@ -3429,12 +3563,14 @@
         // ============================================
 
         function createParticles() {
-            // Reduzir drasticamente partículas no mobile
+            console.log('Inicializando partículas flutuantes...');
+            // Reduzir drasticamente partículas para performance
             const isMobile = window.innerWidth <= 768;
-            const count = isMobile ? 80 : 250; // Muito menos no mobile
+            const count = isMobile ? 30 : 100; // Muito menos partículas
             const positions = new Float32Array(count * 3);
             const sizes = new Float32Array(count);
             const colors = new Float32Array(count * 3);
+            console.log(count + ' partículas criadas');
 
             for (let i = 0; i < count; i++) {
                 // Distribuir partículas em formato esférico
@@ -3492,24 +3628,44 @@
 
         function initCursor() {
             const cursor = document.getElementById('cursor');
+            if (!cursor) return;
+
             let cursorX = 0, cursorY = 0;
             let targetX = 0, targetY = 0;
+            let isAnimating = false;
 
+            // Usar transform em vez de left/top para melhor performance
             document.addEventListener('mousemove', (e) => {
                 targetX = e.clientX;
                 targetY = e.clientY;
-            });
+
+                if (!isAnimating) {
+                    isAnimating = true;
+                    requestAnimationFrame(animateCursor);
+                }
+            }, { passive: true });
 
             function animateCursor() {
-                cursorX += (targetX - cursorX) * 0.15;
-                cursorY += (targetY - cursorY) * 0.15;
+                const deltaX = targetX - cursorX;
+                const deltaY = targetY - cursorY;
 
-                cursor.style.left = cursorX + 'px';
-                cursor.style.top = cursorY + 'px';
+                // Parar animação se cursor estiver próximo o suficiente
+                if (Math.abs(deltaX) < 0.1 && Math.abs(deltaY) < 0.1) {
+                    cursorX = targetX;
+                    cursorY = targetY;
+                    cursor.style.transform = `translate(${cursorX}px, ${cursorY}px)`;
+                    isAnimating = false;
+                    return;
+                }
+
+                cursorX += deltaX * 0.15;
+                cursorY += deltaY * 0.15;
+
+                // Usar transform para melhor performance
+                cursor.style.transform = `translate(${cursorX}px, ${cursorY}px)`;
 
                 requestAnimationFrame(animateCursor);
             }
-            animateCursor();
 
             // Hover effects
             const hoverElements = document.querySelectorAll('a, button, .service-item, .section-dot');
@@ -3771,6 +3927,20 @@
                     mobileTouchArea.style.display = 'block';
                 }
                 // A opacidade do centerInfo e detailPanel já é controlada pela transição acima
+            }
+
+            // ============================================
+            // ATUALIZAR ELEMENTOS MOBILE (integrado aqui para performance)
+            // ============================================
+            const mobileInfoBtn = document.getElementById('mobileInfoBtn');
+            if (mobileInfoBtn && window.innerWidth <= 768) {
+                if (scrollY > endOfModelsScroll - windowHeight * 0.5) {
+                    mobileInfoBtn.style.opacity = '0';
+                    mobileInfoBtn.style.pointerEvents = 'none';
+                } else {
+                    mobileInfoBtn.style.opacity = '1';
+                    mobileInfoBtn.style.pointerEvents = 'auto';
+                }
             }
         }
 
@@ -4068,7 +4238,7 @@
                 autoRotateModel = false;
                 modelDragStart = { x: e.clientX, y: e.clientY };
                 modelRotationVelocity = { x: 0, y: 0 };
-                canvas.style.cursor = 'grabbing';
+                // Cursor permanece default - apenas rotaciona
                 e.preventDefault();
             });
 
@@ -4101,7 +4271,7 @@
             document.addEventListener('mouseup', () => {
                 if (isModelDragging) {
                     isModelDragging = false;
-                    canvas.style.cursor = 'grab';
+                    // Cursor permanece default
 
                     // Voltar auto-rotação após um delay
                     setTimeout(() => {
@@ -4264,27 +4434,36 @@
                 });
             }
 
-            // Hover effect - mudar cursor
+            // Hover effect - mudar cursor (COM THROTTLING para evitar travadas)
+            let lastHoverCheck = 0;
+            const hoverThrottle = 150; // 150ms entre cada verificação
+
             canvas.addEventListener('mousemove', (e) => {
                 if (isModelDragging) return;
+
+                const now = Date.now();
+                if (now - lastHoverCheck < hoverThrottle) return;
+                lastHoverCheck = now;
 
                 const mousePos = new THREE.Vector2(
                     (e.clientX / window.innerWidth) * 2 - 1,
                     -(e.clientY / window.innerHeight) * 2 + 1
                 );
 
-                raycaster.setFromCamera(mousePos, camera);
-                const intersects = raycaster.intersectObject(teethGroup, true);
-
-                canvas.style.cursor = intersects.length > 0 ? 'grab' : 'default';
-            });
+                // Raycasting removido - cursor sempre default
+                // (não precisa verificar hover para mudar cursor)
+            }, { passive: true });
         }
 
         function setupToothInteraction() {
+            // Throttle para raycasting (evitar travadas)
+            let lastRaycastTime = 0;
+            const raycastThrottle = 100; // Executar raycasting a cada 100ms
+
             // Mouse move para raycasting e hover
             function onMouseMove(e) {
                 if (!raycaster || !teethGroup) return;
-                
+
                 mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
                 mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
 
@@ -4293,19 +4472,19 @@
                     if (controls) {
                         controls.enabled = false;
                     }
-                    
+
                     // Arrastar objeto - movimento livre em X e Y
                     const deltaX = mouse.x - previousMouse.x;
                     const deltaY = mouse.y - previousMouse.y;
-                    
+
                     // Converter movimento da tela para movimento 3D
                     // Velocidade maior para modelo base (é maior)
                     const moveSpeed = selectedTooth.userData.isBaseModel ? 6 : 8;
                     selectedTooth.userData.targetPos[0] += deltaX * moveSpeed;
                     selectedTooth.userData.targetPos[1] -= deltaY * moveSpeed; // Inverter Y
-                    
+
                     previousMouse.set(mouse.x, mouse.y);
-                    
+
                     console.log('Arrastando objeto:', {
                         deltaX: deltaX.toFixed(2),
                         deltaY: deltaY.toFixed(2),
@@ -4316,15 +4495,8 @@
                     if (controls && !isDragging) {
                         controls.enabled = true;
                     }
-                    // Verificar hover
-                    if (currentObject) {
-                        raycaster.setFromCamera(mouse, camera);
-                        const intersects = raycaster.intersectObject(currentObject, true);
 
-                        renderer.domElement.style.cursor = intersects.length > 0 ? 'grab' : 'default';
-                    } else {
-                        renderer.domElement.style.cursor = 'default';
-                    }
+                    // Cursor sempre default - não muda no hover
                 }
             }
 
@@ -4334,11 +4506,11 @@
 
             renderer.domElement.addEventListener('mousedown', (e) => {
                 if (!raycaster || !teethGroup) return;
-                
+
                 clickStartTime = Date.now();
                 clickStartPos.x = e.clientX;
                 clickStartPos.y = e.clientY;
-                
+
                 mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
                 mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
 
@@ -4351,19 +4523,19 @@
                             isBaseModel: currentObject.userData.isBaseModel,
                             intersects: intersects.length
                         });
-                        
+
                         // Permitir arrastar para todos os objetos, incluindo modelo base
                         selectedTooth = currentObject;
                         isDragging = true;
                         selectedTooth.userData.isDragging = true;
-                        
+
                         // Desabilitar OrbitControls durante arrasto
                         if (controls) {
                             controls.enabled = false;
                         }
-                        
+
                         previousMouse.set(mouse.x, mouse.y);
-                        renderer.domElement.style.cursor = 'grabbing';
+                        // Cursor permanece default
                     }
                 }
             });
@@ -4372,14 +4544,14 @@
             document.addEventListener('mouseup', (e) => {
                 const clickDuration = Date.now() - clickStartTime;
                 const clickDistance = Math.sqrt(
-                    Math.pow(e.clientX - clickStartPos.x, 2) + 
+                    Math.pow(e.clientX - clickStartPos.x, 2) +
                     Math.pow(e.clientY - clickStartPos.y, 2)
                 );
 
                 // Se foi um click rápido e sem movimento, inspecionar
-                if (selectedTooth && selectedTooth.userData.isBaseModel && 
+                if (selectedTooth && selectedTooth.userData.isBaseModel &&
                     clickDuration < 200 && clickDistance < 5) {
-                    
+
                     mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
                     mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
                     raycaster.setFromCamera(mouse, camera);
@@ -4392,7 +4564,7 @@
                             isToothPart: clickedMesh.userData.isToothPart,
                             mesh: clickedMesh
                         });
-                        
+
                         // Tentar encontrar o mesh pai se o clicado não for um mesh direto
                         let targetMesh = clickedMesh;
                         if (!clickedMesh.userData.isToothPart) {
@@ -4406,7 +4578,7 @@
                                 parent = parent.parent;
                             }
                         }
-                        
+
                         // Aceitar qualquer mesh do modelo base para inspeção
                         if (targetMesh && targetMesh.isMesh) {
                             console.log('✅ Inspecionando dente...', targetMesh);
@@ -4426,19 +4598,19 @@
                         updateService(serviceIndex);
                     }
                 }
-                
+
                 // Reabilitar OrbitControls
                 if (controls) {
                     controls.enabled = true;
                 }
-                
+
                 isDragging = false;
                 if (selectedTooth) {
                     selectedTooth.userData.isDragging = false;
                 }
-                
+
                 // Se foi um click rápido (não arrastou) no modelo base, inspecionar
-                if (selectedTooth && selectedTooth.userData.isBaseModel && 
+                if (selectedTooth && selectedTooth.userData.isBaseModel &&
                     clickDuration < 300 && clickDistance < 10) {
                     console.log('Click detectado no modelo base, inspecionando...');
                     // Manter selectedTooth para inspeção (já foi tratado acima)
@@ -4461,8 +4633,40 @@
         // Detectar mobile uma vez para performance
         const isMobileDevice = window.innerWidth <= 768;
 
+        // Sistema de qualidade adaptativa baseado em FPS
+        let frameCount = 0;
+        let lastFPSCheck = Date.now();
+        let currentFPS = 60;
+        let lowPerformanceMode = false;
+
         function animate() {
             requestAnimationFrame(animate);
+
+            // Monitorar FPS a cada 60 frames
+            frameCount++;
+            if (frameCount >= 60) {
+                const now = Date.now();
+                const delta = now - lastFPSCheck;
+                currentFPS = (1000 / delta) * 60;
+
+                // Ativar modo de baixa performance se FPS < 30
+                if (currentFPS < 30 && !lowPerformanceMode) {
+                    lowPerformanceMode = true;
+                    console.warn('⚠️ FPS baixo detectado. Ativando modo de performance.');
+                    // Reduzir pixel ratio
+                    renderer.setPixelRatio(1);
+                    // Desabilitar partículas
+                    if (particles) particles.visible = false;
+                } else if (currentFPS > 45 && lowPerformanceMode) {
+                    lowPerformanceMode = false;
+                    console.log('✅ FPS normalizado. Restaurando qualidade.');
+                    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+                    if (particles) particles.visible = true;
+                }
+
+                frameCount = 0;
+                lastFPSCheck = now;
+            }
 
             // No mobile, simplificar animações
             if (isMobileDevice) {
@@ -4476,8 +4680,10 @@
 
             const time = Date.now() * 0.001;
 
-            // Atualizar controles
-            controls.update();
+            // Atualizar controles (apenas se necessário)
+            if (controls.enabled) {
+                controls.update();
+            }
 
             // Animação do objeto atual - movimento suave para posição alvo
             if (teethGroup && currentObject) {
@@ -4497,8 +4703,8 @@
                     }
                 }
 
-                // Animação de pulso no glow quando selecionado
-                if (currentObject.userData.isSelected && currentObject.userData.glowMesh) {
+                // Animação de pulso no glow quando selecionado (pular se FPS baixo)
+                if (!lowPerformanceMode && currentObject.userData.isSelected && currentObject.userData.glowMesh) {
                     const pulse = Math.sin(time * 2) * 0.1 + 0.2;
                     currentObject.userData.glowMesh.material.opacity = pulse;
                 }
@@ -4509,8 +4715,8 @@
                     currentObject.rotation.y += rotationSpeed;
                 }
 
-                // Animação de pulso na parte selecionada do modelo base
-                if (currentObject.userData.isBaseModel && currentObject.userData.selectedPart) {
+                // Animação de pulso na parte selecionada do modelo base (pular se FPS baixo)
+                if (!lowPerformanceMode && currentObject.userData.isBaseModel && currentObject.userData.selectedPart) {
                     const selectedMesh = currentObject.userData.selectedPart;
                     if (selectedMesh.material && selectedMesh.material.emissiveIntensity !== undefined) {
                         const pulse = Math.sin(time * 3) * 0.2 + 0.8;
@@ -4551,12 +4757,12 @@
             }, 1000);
         });
 
-        // Timeout de segurança absoluto: forçar esconder loader após 45 segundos
+        // Timeout de segurança absoluto: forçar esconder loader após 60 segundos
         // Este é o único timeout que força diretamente (caso tudo falhe)
         setTimeout(() => {
             const loader = document.getElementById('loader');
             if (loader && !loader.classList.contains('hidden')) {
-                console.warn('🚨 TIMEOUT ABSOLUTO: Forçando esconder loader após 45 segundos');
+                console.warn('🚨 TIMEOUT ABSOLUTO: Forçando esconder loader após 60 segundos');
                 // Forçar ambas as flags como true
                 pageFullyLoaded = true;
                 modelLoaded = true;
@@ -4576,7 +4782,7 @@
                     }
                 }
             }
-        }, 45000);
+        }, 60000);
 
         // ============================================
         // MODAL MOBILE - Controle de abertura/fechamento
@@ -4643,8 +4849,7 @@
             }
         }
 
-        // Adicionar listener para atualizar elementos mobile no scroll
-        window.addEventListener('scroll', updateMobileElements);
+        // updateMobileElements integrado na função onScroll() para melhor performance
 
         // Inicializar com tratamento de erro
         try {
@@ -4676,4 +4881,5 @@
         }
     </script>
 </body>
+
 </html>
