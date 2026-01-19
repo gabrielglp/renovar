@@ -409,9 +409,11 @@
         .loader-bar {
             position: absolute;
             height: 100%;
+            width: 0%;
             background: var(--neon-blue);
             box-shadow: 0 0 10px var(--neon-blue);
-            animation: load 6s ease-in-out infinite;
+            transition: width 0.5s ease-out;
+            left: 0;
         }
 
         @keyframes load {
@@ -1623,7 +1625,8 @@
         <div class="loader-progress">
             <div class="loader-bar"></div>
         </div>
-        <div id="loaderStatus" style="position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--neon-blue); opacity: 0.7;">Carregando modelo 3D...</div>
+        <div id="loaderPercent" style="position: absolute; bottom: 5rem; left: 50%; transform: translateX(-50%); font-family: 'Space Mono', monospace; font-size: 1.2rem; color: var(--neon-blue); font-weight: bold;">0%</div>
+        <div id="loaderStatus" style="position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%); font-family: 'Space Mono', monospace; font-size: 0.7rem; color: var(--neon-blue); opacity: 0.7;">Iniciando...</div>
     </div>
 
     <!-- Navigation -->
@@ -2239,24 +2242,18 @@
 
         // Função helper para esconder o loader
         // Flag para controlar carregamento completo
-        let pageFullyLoaded = false;
-        let modelLoaded = false;
+        let allModelsLoaded = false;
+        let modelsLoadedCount = 0;
+        const totalModelsToLoad = 3;
         const pageLoadStartTime = Date.now();
-        const minimumLoadingTime = 5000; // Tempo mínimo de 5 segundos para garantir carregamento completo
 
         function checkAndHideLoader() {
-            // Só esconde o loader quando TUDO estiver carregado
-            if (pageFullyLoaded && modelLoaded) {
-                // Garantir que o loader ficou visível pelo tempo mínimo
-                const elapsedTime = Date.now() - pageLoadStartTime;
-                const remainingTime = minimumLoadingTime - elapsedTime;
-
-                if (remainingTime > 0) {
-                    console.log(`⏳ Aguardando mais ${remainingTime}ms para tempo mínimo de loading...`);
-                    setTimeout(actuallyHideLoader, remainingTime);
-                } else {
-                    actuallyHideLoader();
-                }
+            // Só esconde o loader quando TODOS os 3 modelos estiverem carregados
+            if (allModelsLoaded && modelsLoadedCount >= totalModelsToLoad) {
+                console.log(`✅ Todos os ${modelsLoadedCount} modelos carregados!`);
+                actuallyHideLoader();
+            } else {
+                console.log(`⏳ Aguardando modelos... (${modelsLoadedCount}/${totalModelsToLoad})`);
             }
         }
 
@@ -2339,37 +2336,36 @@
         }
 
         function hideLoader() {
-            // Marcar modelo como carregado
-            modelLoaded = true;
-            console.log('📦 Modelo 3D carregado');
+            // Esta função é chamada apenas quando TODOS os modelos terminarem de carregar
+            allModelsLoaded = true;
+            const loadTime = ((Date.now() - pageLoadStartTime) / 1000).toFixed(1);
+            console.log(`📦 Carregamento completo em ${loadTime}s`);
             checkAndHideLoader();
         }
-
-        // Listener para quando a página estiver totalmente carregada
-        window.addEventListener('load', () => {
-            console.log('🌐 Página totalmente carregada');
-            pageFullyLoaded = true;
-            checkAndHideLoader();
-        });
 
         function createTeeth() {
             teethGroup = new THREE.Group();
             scene.add(teethGroup);
 
-            // Timeout máximo de 30 segundos para esconder loader mesmo se falhar (modelos grandes)
+            // Timeout máximo de 120 segundos (2 minutos) para modelos MUITO grandes
             loaderTimeout = setTimeout(() => {
-                console.warn('⏱️ Timeout: Carregamento demorou muito. Escondendo loader.');
-                hideLoader();
-            }, 30000);
-
-            // Timeout de segurança adicional de 40 segundos (modelos grandes)
-            // Apenas marca como carregado, não força esconder (respeitando checkAndHideLoader)
-            setTimeout(() => {
-                if (!modelLoaded) {
-                    console.warn('⚠️ Timeout de segurança: Marcando modelo como carregado');
+                console.warn('⏱️ Timeout após 2 minutos. Forçando carregamento.');
+                if (!allModelsLoaded) {
+                    allModelsLoaded = true;
+                    modelsLoadedCount = totalModelsToLoad;
                     hideLoader();
                 }
-            }, 40000);
+            }, 120000);
+
+            // Timeout de segurança adicional de 180 segundos (3 minutos)
+            setTimeout(() => {
+                if (!allModelsLoaded) {
+                    console.warn('⚠️ Timeout absoluto: Forçando carregamento após 3 minutos');
+                    allModelsLoaded = true;
+                    modelsLoadedCount = totalModelsToLoad;
+                    hideLoader();
+                }
+            }, 180000);
 
             // Função para verificar e carregar OBJLoader
             function checkAndLoadOBJLoader(attempt = 0, maxAttempts = 5) {
@@ -2594,10 +2590,18 @@
         // Pré-carregar TODOS os modelos ANTES de esconder o loader
         async function preloadAllModels() {
             console.log('🔄 Pré-carregando TODOS os modelos...');
-
+            console.log(`📊 Total de modelos para carregar: ${services.length}`);
+            
             const loaderStatus = document.getElementById('loaderStatus');
+            const loaderBar = document.querySelector('.loader-bar');
+            const loaderPercent = document.getElementById('loaderPercent');
+            
             if (loaderStatus) {
-                loaderStatus.textContent = 'Carregando modelos 3D...';
+                loaderStatus.textContent = 'Iniciando carregamento...';
+            }
+            
+            if (loaderPercent) {
+                loaderPercent.textContent = '0%';
             }
 
             try {
@@ -2605,33 +2609,56 @@
                 for (let i = 0; i < services.length; i++) {
                     const service = services[i];
                     const objPath = service.objPath || 'base.obj';
-
-                    // Atualizar status
+                    
+                    // Atualizar status detalhado
                     if (loaderStatus) {
-                        loaderStatus.textContent = `Carregando ${objPath} (${i + 1}/${services.length})...`;
+                        loaderStatus.textContent = `Carregando ${objPath}... (${i + 1}/${services.length})`;
+                    }
+                    
+                    // Animar barra de progresso e porcentagem
+                    const progressStart = ((i / services.length) * 100);
+                    if (loaderBar) {
+                        loaderBar.style.width = `${progressStart}%`;
+                        loaderBar.style.transition = 'width 0.3s ease';
+                    }
+                    if (loaderPercent) {
+                        loaderPercent.textContent = `${Math.round(progressStart)}%`;
                     }
 
                     if (!loadedModels[objPath]) {
                         try {
-                            console.log(`📦 Carregando ${objPath}...`);
+                            console.log(`📦 [${i + 1}/${services.length}] Carregando ${objPath}...`);
                             const object = await loadOBJModel(objPath, i);
+                            
                             if (object) {
                                 object.visible = (i === 0); // Apenas o primeiro visível
                                 object.userData.objPath = objPath;
                                 teethGroup.add(object);
                                 loadedModels[objPath] = object;
-
+                                
                                 // Configurar primeiro modelo
                                 if (i === 0) {
                                     currentVisibleModel = object;
                                     baseModel = object;
                                 }
-
-                                console.log(`✅ ${objPath} carregado! (${i + 1}/${services.length})`);
+                                
+                                modelsLoadedCount++;
+                                console.log(`✅ [${i + 1}/${services.length}] ${objPath} carregado! (Total: ${modelsLoadedCount})`);
+                                
+                                // Atualizar barra completa e porcentagem para este modelo
+                                const progress = ((modelsLoadedCount / services.length) * 100);
+                                if (loaderBar) {
+                                    loaderBar.style.width = `${progress}%`;
+                                }
+                                if (loaderPercent) {
+                                    loaderPercent.textContent = `${Math.round(progress)}%`;
+                                }
+                            } else {
+                                console.warn(`⚠️ ${objPath} retornou null`);
                             }
                         } catch (error) {
                             console.error(`❌ Erro ao carregar ${objPath}:`, error);
-
+                            
                             // Criar fallback apenas para o primeiro modelo
                             if (i === 0) {
                                 const fallback = createTooth();
@@ -2639,6 +2666,8 @@
                                 teethGroup.add(fallback);
                                 currentVisibleModel = fallback;
                                 baseModel = fallback;
+                                loadedModels[objPath] = fallback;
+                                modelsLoadedCount++;
                                 console.log('⚠️ Usando modelo fallback para', objPath);
                             }
                         }
@@ -2650,13 +2679,21 @@
                 updateDetailPanel(services[0]);
 
                 if (loaderStatus) {
-                    loaderStatus.textContent = '✅ Todos os modelos carregados!';
+                    loaderStatus.textContent = `✅ ${modelsLoadedCount} modelos carregados!`;
                 }
-
-                console.log('✅✅✅ TODOS OS MODELOS CARREGADOS COM SUCESSO!');
+                
+                if (loaderBar) {
+                    loaderBar.style.width = '100%';
+                }
+                
+                if (loaderPercent) {
+                    loaderPercent.textContent = '100%';
+                }
+                
+                console.log(`✅✅✅ CARREGAMENTO COMPLETO! ${modelsLoadedCount}/${services.length} modelos`);
 
             } catch (error) {
-                console.error('Erro geral no preloadAllModels:', error);
+                console.error('❌ Erro geral no preloadAllModels:', error);
             }
         }
 
@@ -4757,15 +4794,15 @@
             }, 1000);
         });
 
-        // Timeout de segurança absoluto: forçar esconder loader após 60 segundos
-        // Este é o único timeout que força diretamente (caso tudo falhe)
+        // Timeout de segurança absoluto: forçar esconder loader após 4 minutos
+        // Este é o último recurso caso tudo falhe
         setTimeout(() => {
             const loader = document.getElementById('loader');
             if (loader && !loader.classList.contains('hidden')) {
-                console.warn('🚨 TIMEOUT ABSOLUTO: Forçando esconder loader após 60 segundos');
-                // Forçar ambas as flags como true
-                pageFullyLoaded = true;
-                modelLoaded = true;
+                console.warn('🚨 TIMEOUT ABSOLUTO: Forçando esconder loader após 4 minutos');
+                // Forçar flags como true
+                allModelsLoaded = true;
+                modelsLoadedCount = totalModelsToLoad;
                 actuallyHideLoader();
 
                 // Tentar criar objeto fallback se não houver nenhum
@@ -4782,7 +4819,7 @@
                     }
                 }
             }
-        }, 60000);
+        }, 240000); // 4 minutos
 
         // ============================================
         // MODAL MOBILE - Controle de abertura/fechamento
