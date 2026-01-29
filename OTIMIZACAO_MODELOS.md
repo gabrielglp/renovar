@@ -156,3 +156,8 @@ Atualmente carrega todos os 3 modelos no início. Podemos:
 - GZIP é transparente para o usuário
 - Simplificação pode afetar detalhes (testar visualmente)
 
+
+
+
+
+

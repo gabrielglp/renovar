@@ -121,3 +121,8 @@ if __name__ == '__main__':
     
     simplify_obj(input_file, output_file, reduction)
 
+
+
+
+
+

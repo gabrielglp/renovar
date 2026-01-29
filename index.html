@@ -1942,14 +1942,12 @@
     <!-- Three.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <!-- OBJLoader para carregar arquivos .obj - tentar múltiplos CDNs -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js" onerror="console.warn('Erro ao carregar OBJLoader do CDN principal, tentando alternativo...'); 
-                     var script = document.createElement('script');
-                     script.src = 'https://threejs.org/examples/js/loaders/OBJLoader.js';
-                     script.onerror = function() { 
-                         console.warn('OBJLoader não disponível de todos os CDNs. O site continuará funcionando com modelos procedurais.'); 
-                     };
-                     document.head.appendChild(script);"></script>
+    
+    <!-- GLTFLoader para carregar arquivos .glb (muito mais rápido que .obj) -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    
+    <!-- DRACOLoader para descompressão (necessário para GLB com compressão Draco) -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
 
     <script>
         // ============================================
@@ -2023,7 +2021,7 @@
                     { label: "Durabilidade", value: "15+ anos" },
                     { label: "Material", value: "Porcelana" }
                 ],
-                objPath: 'base.obj',
+                objPath: 'base.glb',
                 infoLabels: [
                     { tag: "Procedimento_01", value: "Lentes de Contato", small: "PORCELANA ULTRAFINA" },
                     { tag: "Tecnologia", value: "CAD/CAM 3D", small: "PRECISÃO DIGITAL" },
@@ -2040,7 +2038,7 @@
                     { label: "Duração", value: "3 meses" },
                     { label: "Limpeza", value: "360°" }
                 ],
-                objPath: 'escova.obj',
+                objPath: 'escova.glb',
                 infoLabels: [
                     { tag: "Produto_02", value: "Escova Premium", small: "TECNOLOGIA AVANÇADA" },
                     { tag: "Cerdas", value: "Ultra Macias", small: "5.000 FILAMENTOS" },
@@ -2057,7 +2055,7 @@
                     { label: "Comprimento", value: "50m" },
                     { label: "Sabor", value: "Menta" }
                 ],
-                objPath: 'fio_dental.obj',
+                objPath: 'fio_dental.glb',
                 infoLabels: [
                     { tag: "Produto_03", value: "Fio Dental Pro", small: "ALTA RESISTÊNCIA" },
                     { tag: "Tecnologia", value: "Deslizante", small: "ENCERADO ESPECIAL" },
@@ -2086,7 +2084,8 @@
         function init() {
             console.log('🚀 Inicializando aplicação...');
             console.log('THREE disponível?', typeof THREE !== 'undefined');
-            console.log('THREE.OBJLoader disponível?', typeof THREE !== 'undefined' && typeof THREE.OBJLoader !== 'undefined');
+            console.log('THREE.GLTFLoader disponível?', typeof THREE !== 'undefined' && typeof THREE.GLTFLoader !== 'undefined');
+            console.log('THREE.DRACOLoader disponível?', typeof THREE !== 'undefined' && typeof THREE.DRACOLoader !== 'undefined');
 
             const container = document.getElementById('canvas-container');
 
@@ -2237,7 +2236,8 @@
 
         let currentObjectIndex = 0;
         let currentObject = null;
-        let objLoader;
+        let gltfLoader;
+        let dracoLoader;
         let loaderTimeout = null;
 
         // Função helper para esconder o loader
@@ -2367,52 +2367,60 @@
                 }
             }, 180000);
 
-            // Função para verificar e carregar OBJLoader
-            function checkAndLoadOBJLoader(attempt = 0, maxAttempts = 5) {
-                console.log(`Verificando OBJLoader (tentativa ${attempt + 1}/${maxAttempts})...`);
+            // Função para verificar e carregar GLTFLoader
+            function checkAndLoadGLTFLoader(attempt = 0, maxAttempts = 5) {
+                console.log(`Verificando GLTFLoader (tentativa ${attempt + 1}/${maxAttempts})...`);
 
                 // Verificar se THREE está disponível
                 if (typeof THREE === 'undefined') {
                     console.warn('THREE.js ainda não está disponível');
                     if (attempt < maxAttempts) {
-                        setTimeout(() => checkAndLoadOBJLoader(attempt + 1, maxAttempts), 500);
+                        setTimeout(() => checkAndLoadGLTFLoader(attempt + 1, maxAttempts), 500);
                     } else {
-                        console.error('THREE.js não carregou após várias tentativas. Usando fallback.');
+                        console.error('THREE.js não carregou após várias tentativas.');
                         if (loaderTimeout) clearTimeout(loaderTimeout);
-                        showObject(0); // Usar showObject para garantir gerenciamento correto
                         hideLoader();
                     }
                     return;
                 }
 
-                // Verificar se OBJLoader está disponível
-                if (typeof THREE.OBJLoader !== 'undefined') {
+                // Verificar se GLTFLoader está disponível
+                if (typeof THREE.GLTFLoader !== 'undefined' && typeof THREE.DRACOLoader !== 'undefined') {
                     try {
-                        objLoader = new THREE.OBJLoader();
-                        console.log('✅ OBJLoader inicializado com sucesso!');
-                        // Pré-carregar todos os modelos de uma vez
+                        // Configurar DRACOLoader para descompressão
+                        dracoLoader = new THREE.DRACOLoader();
+                        dracoLoader.setDecoderPath('https://www.gstatic.com/draco/versioned/decoders/1.5.6/');
+                        
+                        // Configurar GLTFLoader
+                        gltfLoader = new THREE.GLTFLoader();
+                        gltfLoader.setDRACOLoader(dracoLoader);
+                        
+                        console.log('✅ GLTFLoader inicializado com sucesso!');
+                        console.log('✅ DRACOLoader configurado para descompressão!');
+                        
+                        // Pré-carregar todos os modelos
                         preloadAllModels().then(() => {
                             hideLoader();
                         }).catch((error) => {
                             console.error('Erro no preloadAllModels:', error);
-                            hideLoader(); // Esconder loader mesmo com erro
+                            hideLoader();
                         });
                     } catch (error) {
-                        console.error('Erro ao criar OBJLoader:', error);
+                        console.error('Erro ao criar GLTFLoader:', error);
                         if (attempt < maxAttempts) {
-                            setTimeout(() => checkAndLoadOBJLoader(attempt + 1, maxAttempts), 1000);
+                            setTimeout(() => checkAndLoadGLTFLoader(attempt + 1, maxAttempts), 1000);
                         } else {
-                            console.error('Não foi possível inicializar OBJLoader. Usando fallback.');
+                            console.error('Não foi possível inicializar GLTFLoader.');
                             if (loaderTimeout) clearTimeout(loaderTimeout);
                             hideLoader();
                         }
                     }
                 } else {
-                    console.warn('OBJLoader ainda não está disponível');
+                    console.warn('GLTFLoader ainda não está disponível');
                     if (attempt < maxAttempts) {
-                        setTimeout(() => checkAndLoadOBJLoader(attempt + 1, maxAttempts), 1000);
+                        setTimeout(() => checkAndLoadGLTFLoader(attempt + 1, maxAttempts), 1000);
                     } else {
-                        console.error('OBJLoader não carregou após várias tentativas. Usando fallback.');
+                        console.error('GLTFLoader não carregou após várias tentativas.');
                         if (loaderTimeout) clearTimeout(loaderTimeout);
                         hideLoader();
                     }
@@ -2421,7 +2429,7 @@
 
             // Iniciar verificação após um pequeno delay
             setTimeout(() => {
-                checkAndLoadOBJLoader();
+                checkAndLoadGLTFLoader();
             }, 500);
 
             // Sem fallback - apenas aguarda modelos reais carregarem
@@ -2480,15 +2488,15 @@
             }
         }
 
-        // Função para carregar arquivo .obj (com cache)
-        function loadOBJModel(objPath, serviceIndex) {
+        // Função para carregar arquivo .glb (GLTF com compressão Draco)
+        function loadGLTFModel(glbPath, serviceIndex) {
             return new Promise(async (resolve, reject) => {
                 // Tentar carregar do cache primeiro
-                console.log(`🔍 Verificando cache para ${objPath}...`);
-                const cached = await getCachedModel(objPath);
+                console.log(`🔍 Verificando cache para ${glbPath}...`);
+                const cached = await getCachedModel(glbPath);
                 
                 if (cached) {
-                    console.log(`⚡ ${objPath} carregado do CACHE instantaneamente!`);
+                    console.log(`⚡ ${glbPath} carregado do CACHE instantaneamente!`);
                     try {
                         const loader = new THREE.ObjectLoader();
                         const object = loader.parse(cached);
@@ -2499,15 +2507,12 @@
                     }
                 }
                 
-                if (!objLoader) {
-                    objLoader = new THREE.OBJLoader();
-                }
-
-                console.log(`📥 Baixando ${objPath} da rede...`);
-                objLoader.load(
-                    objPath,
+                console.log(`📥 Baixando ${glbPath} da rede (GLB + Draco)...`);
+                gltfLoader.load(
+                    glbPath,
                     // onLoad
-                    (object) => {
+                    (gltf) => {
+                        const object = gltf.scene;
                         // Calcular bounding box para centralizar e escalar corretamente
                         const box = new THREE.Box3().setFromObject(object);
                         const center = box.getCenter(new THREE.Vector3());
@@ -2517,11 +2522,11 @@
                         // Escala baseada no tipo de modelo E no tamanho da tela
                         const isMobile = window.innerWidth <= 768;
                         let scale;
-                        if (objPath.includes('base')) {
+                        if (glbPath.includes('base')) {
                             scale = isMobile ? 5.0 / maxDim : 8.0 / maxDim; // Menor em mobile
-                        } else if (objPath.includes('escova')) {
+                        } else if (glbPath.includes('escova')) {
                             scale = isMobile ? 4.0 / maxDim : 6.0 / maxDim; // Escova
-                        } else if (objPath.includes('fio_dental')) {
+                        } else if (glbPath.includes('fio_dental')) {
                             scale = isMobile ? 2.5 / maxDim : 4.0 / maxDim; // Fio dental menor
                         } else {
                             scale = isMobile ? 4.0 / maxDim : 6.0 / maxDim; // Padrão
@@ -2532,9 +2537,9 @@
                         object.scale.setScalar(scale);
 
                         // Verificar tipo de modelo
-                        const isBaseObj = objPath.includes('base');
-                        const isEscova = objPath.includes('escova');
-                        const isFioDental = objPath.includes('fio_dental');
+                        const isBaseObj = glbPath.includes('base');
+                        const isEscova = glbPath.includes('escova');
+                        const isFioDental = glbPath.includes('fio_dental');
 
                         // Aplicar material futurista a todos os meshes
                         let meshIndex = 0;
@@ -2566,31 +2571,16 @@
                                     flatShading: false // Smooth shading para melhor aparência
                                 });
 
-                                // Otimizações agressivas de geometria
+                                // GLB já vem otimizado com Draco - apenas verificar geometria
                                 if (child.geometry) {
-                                    console.log(`🔧 Otimizando mesh (${child.geometry.attributes.position.count} vértices)...`);
-                                    
-                                    // Não calcular normais se já existirem
-                                    if (!child.geometry.attributes.normal) {
-                                        child.geometry.computeVertexNormals();
+                                    // Garantir que bounding boxes estejam calculados
+                                    if (!child.geometry.boundingSphere) {
+                                        child.geometry.computeBoundingSphere();
                                     }
-                                    
-                                    // SIMPLIFICAÇÃO: Mesclar vértices duplicados
-                                    const originalCount = child.geometry.attributes.position.count;
-                                    child.geometry = child.geometry.toNonIndexed(); // Converter para não-indexado primeiro
-                                    
-                                    // Liberar dados desnecessários
-                                    child.geometry.deleteAttribute('uv');
-                                    child.geometry.deleteAttribute('uv2');
-                                    
-                                    // Comprimir geometria
-                                    child.geometry.computeBoundingSphere();
-                                    child.geometry.computeBoundingBox();
-                                    
-                                    const finalCount = child.geometry.attributes.position.count;
-                                    if (originalCount !== finalCount) {
-                                        console.log(`✂️ Simplificado: ${originalCount} → ${finalCount} vértices (${Math.round((1 - finalCount/originalCount) * 100)}% redução)`);
+                                    if (!child.geometry.boundingBox) {
+                                        child.geometry.computeBoundingBox();
                                     }
+                                    console.log(`✅ Mesh otimizado (${child.geometry.attributes.position.count} vértices)`);
                                 }
 
                                 child.castShadow = false;
@@ -2621,8 +2611,8 @@
                         try {
                             const loader = new THREE.ObjectLoader();
                             const json = loader.toJSON(object);
-                            cacheModel(objPath, json);
-                            console.log(`💾 ${objPath} cacheado para próxima visita!`);
+                            cacheModel(glbPath, json);
+                            console.log(`💾 ${glbPath} cacheado para próxima visita!`);
                         } catch (error) {
                             console.warn('Não foi possível cachear modelo:', error);
                         }
@@ -2633,15 +2623,15 @@
                     (xhr) => {
                         if (xhr.lengthComputable) {
                             const percentComplete = (xhr.loaded / xhr.total) * 100;
-                            console.log('Carregando modelo .obj: ' + Math.round(percentComplete) + '%');
+                            console.log(`⚡ Carregando ${glbPath}: ${Math.round(percentComplete)}%`);
                         }
                     },
                     // onError
                     (error) => {
-                        console.error('❌ ERRO ao carregar modelo .obj:', error);
-                        console.error('Caminho tentado:', objPath);
+                        console.error('❌ ERRO ao carregar modelo .glb:', error);
+                        console.error('Caminho tentado:', glbPath);
                         console.error('⚠️ Modelo não será exibido. Verifique se o arquivo existe.');
-                        reject(error); // Rejeitar em vez de criar fallback
+                        reject(error);
                     }
                 );
             });
@@ -2677,7 +2667,7 @@
                 // Carregar TODOS os modelos em SEQUÊNCIA (não em background)
                 for (let i = 0; i < services.length; i++) {
                     const service = services[i];
-                    const objPath = service.objPath || 'base.obj';
+                    const objPath = service.objPath || 'base.glb';
                     
                     // Atualizar status detalhado
                     if (loaderStatus) {
@@ -2697,7 +2687,7 @@
                     if (!loadedModels[objPath]) {
                         try {
                             console.log(`📦 [${i + 1}/${services.length}] Carregando ${objPath}...`);
-                            const object = await loadOBJModel(objPath, i);
+                            const object = await loadGLTFModel(objPath, i);
                             
                             if (object) {
                                 object.visible = (i === 0); // Apenas o primeiro visível
